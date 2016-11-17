@@ -1,19 +1,23 @@
-var http = require('http');
-var fs = require('fs');
-var port = 8080;
+const http = require('http');
+const fs = require('fs');
+const port = 8080;
 
-var envData = require('../env.json');
+const envData = require('../env.json');
 
 // Given a list of days of the week, sort it
 function sortDaysOfWeek(list) {
-  var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  return list.map(function(l){
-    return l.toLowerCase();
-  }).sort(function(a, b){
-    return days.indexOf(a) > days.indexOf(b);
-  }).map(function(l){
-    return l.charAt(0).toUpperCase() + l.substr(1);
-  });
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  
+  return list
+    .map(function(l){
+      return l.toLowerCase();
+    })
+    .sort(function(a, b){
+      return days.indexOf(a) > days.indexOf(b);
+    })
+    .map(function(l){
+      return l.charAt(0).toUpperCase() + l.substr(1);
+    });
 }
 
 
@@ -21,13 +25,26 @@ function sortDaysOfWeek(list) {
 function canteenHandler(args, res) {
   
   // Where to find the menus
-  var menuDir = envData.dataPathDev;
+  const menuDir = envData.dataPathDev;
 
   // Valid parameters
-  var recognisedParams = ['', 'today', 'tomorrow', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'ingredient', 'help'];
+  const recognisedParams = [
+    '',
+    'today',
+    'tomorrow',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+    'ingredient',
+    'help'
+  ];
 
-  // First check this request came from the Times Slack channel
-  var teams = envData.registeredTeams;
+  // First check this request came from a recognised Slack team
+  const teams = envData.registeredTeams;
 
   if (!teams.includes(args.token)) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -35,21 +52,22 @@ function canteenHandler(args, res) {
   }
 
   // Now look at the parameter the user supplied
-  var params = args.text.split('+').map(function(a){
-    return a.toLowerCase();
-  });
+  const params =
+    args.text
+      .split('+')
+      .map(a => a.toLowerCase());
 
   // If we don't recognise the parameter, return an error
   if (recognisedParams.indexOf(params[0]) === -1) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Sorry: I didn\'t recognise the command "' + params[0] + '"');
+    res.end('Sorry: I didn’t recognise the command "' + params[0] + '"');
   }
   // If we do recognise it...
   else {
     // We'll be returning JSON
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    var payload = {
+    const payload = {
       'text': '',
       'attachments': []
     }
@@ -58,9 +76,7 @@ function canteenHandler(args, res) {
       // For help requests, return a list of valid parameters
       case 'help':
         payload.text = '*Hungry? Type* `/canteen` *, optionally followed by one of these commands, to see what’s on offer:*';
-        recognisedParams.forEach(function(p){
-          payload.text += '\n' + p;
-        });
+        recognisedParams.forEach(p => payload.text += '\n' + p);
         break;
 
       // For ingredient requests, return a list of days where that ingredient is on the menu
@@ -68,40 +84,38 @@ function canteenHandler(args, res) {
         // If the user passed an ingredient to check
         if (params[1]) {
 
-          var ingredient = params[1];
+          const ingredient = params[1];
 
           // Try to read the menu files
           try {
-            var daysToReturn = new Set();
+            const daysToReturn = new Set();
 
-            var files = fs.readdirSync(menuDir);
+            const files = fs.readdirSync(menuDir);
 
-            // Only look at the JSON files
-            files.filter(function(f){
-              return f.indexOf('.json', f.length - '.json'.length) !== -1;
-            })
-            // Check the menu data in each day's file to see if it contains the ingredient
-            .forEach(function(f){
-              var menuData = require(menuDir + f);
+            files
+              // Only look at the JSON files
+              .filter(f => f.indexOf('.json', f.length - '.json'.length) !== -1)
 
-              menuData.locations.forEach(function(l){
-                if (l.menu.toLowerCase().indexOf(ingredient) > -1) {
-                  daysToReturn.add(menuData.day); // Keep track of days that do contain the ingredient
-                }
-              });
+              // Check the menu data in each day's file to see if it contains the ingredient
+              .forEach(f => {
+                const menuData = require(menuDir + f);
+
+                menuData.locations.forEach(l => {
+                  if (l.menu.toLowerCase().indexOf(ingredient) > -1) {
+                    daysToReturn.add(menuData.day); // Keep track of days that do contain the ingredient
+                  }
+                });
             });
 
             // Clear the require cache
-            Object.keys(require.cache).forEach(function(key) {
-              delete require.cache[key];
-            });
+            Object.keys(require.cache).forEach(key => delete require.cache[key]);
 
             daysToReturn = sortDaysOfWeek(Array.from(daysToReturn));
 
             if (daysToReturn.length === 0) {
               payload.text = 'Sorry, I couldn’t find "' + ingredient + '" in the menu this week';
             } else {
-              var daysText = daysToReturn.reduce(function(str, d, i, arr){
+              const daysText = daysToReturn.reduce((str, d, i, arr) => {
                 if (i === 0) return d;
                 if (i === arr.length - 1) return str + ' and ' + d;
                 return str + ', ' + d;
@@ -129,10 +143,8 @@ function canteenHandler(args, res) {
       default:
         // Try to read the menu file
         try {
-          var menuData = require(menuDir + params[0] + '.json');
-          Object.keys(require.cache).forEach(function(key) {
-            delete require.cache[key];
-          }); 
+          const menuData = require(menuDir + params[0] + '.json');
+          Object.keys(require.cache).forEach(key => delete require.cache[key]);
         } catch (err) {
           console.log('Error reading file ' + params[0] + ' from ' + menuDir);
           console.log(err);
@@ -140,20 +152,20 @@ function canteenHandler(args, res) {
         }
 
         // Structure the response text and attachments
-        var menuText = '';
-        menuData.locations.forEach(function(loc, i) {
+        const menuText = '';
+        menuData.locations.forEach((loc, i) => {
           menuText += '*' + loc.location + '*\n';
           menuText += loc.menu + '\n';
         });
 
-        var menuUrl = menuData.url;
+        const menuUrl = menuData.url;
 
-        var day = params[0].charAt(0).toUpperCase() + params[0].slice(1);
+        const day = params[0].charAt(0).toUpperCase() + params[0].slice(1);
 
-        var attachments = [{
-          'fallback': day + '\'s menu',
+        const attachments = [{
+          'fallback': day + '’s menu',
           'color': 'good',
-          'title': day + '\'s menu',
+          'title': day + '’s menu',
           'title_link': menuUrl,
           'fields': [
             {
@@ -182,12 +194,12 @@ function defaultHandler(res) {
 
 // Parse POST body arguments
 function parseArgs(data) {
-  var args = {}
+  const args = {};
 
-  var parts = data.split('&');
-  parts.forEach(function(part, i){
-    var key = part.split('=')[0];
-    var value = part.split('=')[1];
+  const parts = data.split('&');
+  parts.forEach((part, i) => {
+    const key = part.split('=')[0];
+    const value = part.split('=')[1];
     args[key] = decodeURIComponent(value);
   });
 
@@ -196,19 +208,19 @@ function parseArgs(data) {
 
 
 // The server to run
-var server = http.createServer(function(req, res){
+const server = http.createServer((req, res) => {
   console.log('Received request via ' + req.method);
 
   // Slack commands are sent via POST
   if (req.method == 'POST') {
-    var data = '';
+    const data = '';
 
     req.on('data', function(chunk){
       data += chunk.toString();
     });
 
     req.on('end', function(){
-      var args = parseArgs(data);
+      const args = parseArgs(data);
       
       // Recognised service commands
       switch (args.command) {
