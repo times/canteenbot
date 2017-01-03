@@ -40,5 +40,8 @@ const options = {
 
 // Send the data
 request(options, (err, res) => {
-  // Error handling here
+  if (err) {
+    console.log('Error sending data to Slack');
+    console.log(err);
+  }
 });
