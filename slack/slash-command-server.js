@@ -1,28 +1,73 @@
 const http = require('http');
 const fs = require('fs');
-const port = 8080;
 
-const envData = require('../env.json');
+const helpers = require('../lib/helpers');
 
-// Given a list of days of the week, sort it
-function sortDaysOfWeek(list) {
-  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  
-  return list
-    .map(function(l){
-      return l.toLowerCase();
-    })
-    .sort(function(a, b){
-      return days.indexOf(a) > days.indexOf(b);
-    })
-    .map(function(l){
-      return l.charAt(0).toUpperCase() + l.substr(1);
+
+// Attempt to read the env file
+let envData;
+try {
+  envData = helpers.readJsonFile('../', 'env');
+} catch (err) {
+  return;
+}
+
+
+/*
+ * SERVER
+ */
+
+// The server to run
+const server = http.createServer((req, res) => {
+  console.log(`Received request via ${req.method}`);
+
+  // Slack commands are sent via POST
+  if (req.method == 'POST') {
+    let data = '';
+
+    req.on('data', function(chunk){
+      data += chunk.toString();
     });
+
+    req.on('end', function(){
+      const args = helpers.parseArgs(data);
+      
+      // Recognised service commands
+      switch (args.command) {
+        case '/canteen':
+          canteenHandler(args, res);
+          break;
+        default:
+          defaultHandler(res);
+      }
+    });
+  }
+  
+  // If we receive something not via POST
+  else { 
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Boo!\n');
+  }
+});
+
+
+// Go
+server.listen(envData.port, () => console.log(`Listening on localhost at port ${envData.port}`));
+
+
+/*
+ * HANDLERS
+ */
+
+// Handle requests that don't match a recognised service
+const defaultHandler = res => {
+  res.writeHead(405, 'Method not supported', { 'Content-Type': 'text/plain' });
+  res.end(`Sorry: that service isn't supported\n`);
 }
 
 
 // Handle CanteenBot requests
-function canteenHandler(args, res) {
+const canteenHandler = (args, res) => {
   
   // Where to find the menus
   const menuDir = envData.dataPathDev;
@@ -45,122 +90,119 @@ function canteenHandler(args, res) {
 
   // First check this request came from a recognised Slack team
   const teams = envData.registeredTeams;
-
   if (!teams.includes(args.token)) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Invalid token');
   }
 
-  // Now look at the parameter the user supplied
+  // Now look at the first parameter the user supplied
   const params =
     args.text
       .split('+')
       .map(a => a.toLowerCase());
 
+  const firstParam = params[0];
+
   // If we don't recognise the parameter, return an error
-  if (recognisedParams.indexOf(params[0]) === -1) {
+  if (!recognisedParams.includes(firstParam)) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Sorry: I didn’t recognise the command "' + params[0] + '"');
+    res.end(`Sorry: I didn’t recognise the command "${firstParam}"`);
   }
+
   // If we do recognise it...
   else {
     // We'll be returning JSON
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
+    // The object we'll eventually return to Slack
     const payload = {
       'text': '',
       'attachments': []
     }
 
-    switch (params[0]) {
+    // Depending on the parameter, return different information
+    switch (firstParam) {
       // For help requests, return a list of valid parameters
       case 'help':
-        payload.text = '*Hungry? Type* `/canteen` *, optionally followed by one of these commands, to see what’s on offer:*';
-        recognisedParams.forEach(p => payload.text += '\n' + p);
+        const helpText = '*Hungry? Type* `/canteen` *, optionally followed by one of these commands, to see what’s on offer:*';
+        const paramsText = recognisedParams.reduce((str, p) => `${str}\n${p}`);
+        payload.text = helpText + paramsText;
         break;
 
       // For ingredient requests, return a list of days where that ingredient is on the menu
       case 'ingredient':
-        // If the user passed an ingredient to check
-        if (params[1]) {
-
+        // If the user didn't pass an ingredient to check
+        if (!params[1]) {
+          payload.text = 'You need to give me an ingredient to check!';
+        }
+        else {
           const ingredient = params[1];
 
           // Try to read the menu files
+          let files;
           try {
-            const daysToReturn = new Set();
+            // Only look at the JSON files
+            const fileNames =
+              fs.readdirSync(__dirname + '/' + menuDir)
+                .filter(f => helpers.endsWithJson);
 
-            const files = fs.readdirSync(menuDir);
-
-            files
-              // Only look at the JSON files
-              .filter(f => f.indexOf('.json', f.length - '.json'.length) !== -1)
-
-              // Check the menu data in each day's file to see if it contains the ingredient
-              .forEach(f => {
-                const menuData = require(menuDir + f);
-
-                menuData.locations.forEach(l => {
-                  if (l.menu.toLowerCase().indexOf(ingredient) > -1) {
-                    daysToReturn.add(menuData.day); // Keep track of days that do contain the ingredient
-                  }
-                });
-            });
-
-            // Clear the require cache
-            Object.keys(require.cache).forEach(key => delete require.cache[key]);
-
-            daysToReturn = sortDaysOfWeek(Array.from(daysToReturn));
-
-            if (daysToReturn.length === 0) {
-              payload.text = 'Sorry, I couldn’t find "' + ingredient + '" in the menu this week';
-            } else {
-              const daysText = daysToReturn.reduce((str, d, i, arr) => {
-                if (i === 0) return d;
-                if (i === arr.length - 1) return str + ' and ' + d;
-                return str + ', ' + d;
-              }, '');
-              payload.text = 'Looks like the canteen are serving ' + ingredient + ' on ' + daysText + ' this week';
-            }
+            // Read the actual file data
+            files = fileNames.map(helpers.readJsonFile.bind(null, menuDir));
           } catch (err) {
-            console.log('Error reading files');
-            console.log(err);
             return;
           }
-        }
-        // If there was no ingredient to check
-        else {
-          payload.text = 'You need to give me an ingredient to check!';
-        }
 
+          const strContainsIngredient = str => str.toLowerCase().includes(ingredient);
+          const hasIngredient = ({menu, location}) => strContainsIngredient(menu) || strContainsIngredient(location);
+
+          // Check the menu data in each day's file to see if it contains the ingredient
+          const daysWithIngredient =
+            files
+              .reduce((days, menu) => {
+                const ingredientOnMenu = menu.locations.some(hasIngredient);
+                return (ingredientOnMenu) ? [...days, menu.day] : days;
+              }, [])
+              // Filter out duplicate days
+              .filter((day, i, arr) => arr.indexOf(day) === i);
+
+          // If we didn't find the ingredient
+          if (daysWithIngredient.length === 0) {
+            payload.text = `Sorry, I couldn’t find "${ingredient}" in the menu this week`;
+          }
+          // If we did find it
+          else {
+            const orderedDays = helpers.orderDaysOfWeek(daysWithIngredient);
+            const daysText = orderedDays.reduce((str, d, i, arr) => {
+              if (i === 0) return d;
+              if (i === arr.length - 1) return `${str} and ${d}`;
+              return `${str}, ${d}`;
+            }, '');
+            payload.text = `Looks like the canteen are serving ${ingredient} on ${daysText} this week`;
+          }
+        }
         break;
-
-      // Default to today's menu if nothing more specific was provided
-      case '':
-        params[0] = 'today';
 
       // Return a menu for all other cases
       default:
+        // Default to today's menu if nothing more specific was provided
+        const requestedMenu = params[0] || 'today';
+
         // Try to read the menu file
+        let menuData;
         try {
-          const menuData = require(menuDir + params[0] + '.json');
-          Object.keys(require.cache).forEach(key => delete require.cache[key]);
+          menuData = helpers.readJsonFile(menuDir, requestedMenu);
         } catch (err) {
-          console.log('Error reading file ' + params[0] + ' from ' + menuDir);
-          console.log(err);
           return;
         }
 
-        // Structure the response text and attachments
-        const menuText = '';
-        menuData.locations.forEach((loc, i) => {
-          menuText += '*' + loc.location + '*\n';
-          menuText += loc.menu + '\n';
-        });
+        // Structure the response text and attachments;
+        const menuText = menuData.locations.reduce((str, loc) => {
+          return str + '*' + loc.location + '*\n' + loc.menu + '\n';
+        }, '');
 
         const menuUrl = menuData.url;
 
-        const day = params[0].charAt(0).toUpperCase() + params[0].slice(1);
+        const day = requestedMenu.charAt(0).toUpperCase() + requestedMenu.slice(1);
 
         const attachments = [{
           'fallback': day + '’s menu',
@@ -177,72 +219,10 @@ function canteenHandler(args, res) {
         }];
 
         payload.attachments = attachments;
+        break;
     }
 
     // Return the response to Slack
     res.end(JSON.stringify(payload));
   }
 }
-
-
-// Handle requests that don't match a recognised service
-function defaultHandler(res) {
-  res.writeHead(405, 'Method not supported', {'Content-Type':'text/plain'});
-  res.end('Sorry: that service isn\'t supported\n');
-}
-
-
-// Parse POST body arguments
-function parseArgs(data) {
-  const args = {};
-
-  const parts = data.split('&');
-  parts.forEach((part, i) => {
-    const key = part.split('=')[0];
-    const value = part.split('=')[1];
-    args[key] = decodeURIComponent(value);
-  });
-
-  return args;
-}
-
-
-// The server to run
-const server = http.createServer((req, res) => {
-  console.log('Received request via ' + req.method);
-
-  // Slack commands are sent via POST
-  if (req.method == 'POST') {
-    const data = '';
-
-    req.on('data', function(chunk){
-      data += chunk.toString();
-    });
-
-    req.on('end', function(){
-      const args = parseArgs(data);
-      
-      // Recognised service commands
-      switch (args.command) {
-        case '/canteen':
-          canteenHandler(args, res);
-          break;
-        default:
-          defaultHandler(res);
-      }
-    });
-
-  }
-  
-  // If we receive something not via POST
-  else { 
-    res.writeHead(200, {'Content-Type':'text/plain'});
-    res.end('Boo!\n');
-  }
-});
-
-
-// Go
-server.listen(port, function(){
-  console.log('Listening on localhost at port ' + port);
-});
