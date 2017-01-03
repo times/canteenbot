@@ -15,6 +15,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "alexa-sdk": "^1.0.0",
+    "dotenv": "^2.0.0",
     "request": "^2.75.0"
   }
 }

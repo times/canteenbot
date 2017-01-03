@@ -1,15 +1,12 @@
-'use strict';
-
 const request = require('request');
 
-// Secret env data
-const envData = require('../env.json');
+require('dotenv').config();
 
 // The webhook to post to
-const webhookUrl = envData.webhookUrl;
+const webhookUrl = process.env.WEBHOOK_URL;
 
 // Today’s menu data
-const menuData = require(envData.dataPathDev + 'today.json');
+const menuData = require(process.env.DATA_PATH + 'today.json');
 const menuUrl = menuData.url;
 
 // Build the menu data into a formatted string

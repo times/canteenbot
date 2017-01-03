@@ -1,16 +1,9 @@
 const http = require('http');
 const fs = require('fs');
 
+require('dotenv').config();
+
 const helpers = require('../lib/helpers');
-
-
-// Attempt to read the env file
-let envData;
-try {
-  envData = helpers.readJsonFile('../', 'env');
-} catch (err) {
-  return;
-}
 
 
 /*
@@ -52,7 +45,7 @@ const server = http.createServer((req, res) => {
 
 
 // Go
-server.listen(envData.port, () => console.log(`Listening on localhost at port ${envData.port}`));
+server.listen(process.env.PORT, () => console.log(`Listening on localhost at port ${process.env.PORT}`));
 
 
 /*
@@ -70,7 +63,7 @@ const defaultHandler = res => {
 const canteenHandler = (args, res) => {
   
   // Where to find the menus
-  const menuDir = envData.dataPathDev;
+  const menuDir = process.env.DATA_PATH;
 
   // Valid parameters
   const recognisedParams = [
@@ -89,7 +82,8 @@ const canteenHandler = (args, res) => {
   ];
 
   // First check this request came from a recognised Slack team
-  const teams = envData.registeredTeams;
+  // const teams = envData.registeredTeams;
+  const teams = [ process.env.TIMES_TEAM ];
   if (!teams.includes(args.token)) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Invalid token');
