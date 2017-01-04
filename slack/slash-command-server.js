@@ -1,9 +1,9 @@
 const http = require('http');
-const fs = require('fs');
 
 require('dotenv').config();
 
 const helpers = require('../lib/helpers');
+const common = require('../lib/common');
 
 
 /*
@@ -45,7 +45,7 @@ const server = http.createServer((req, res) => {
 
 
 // Go
-server.listen(process.env.PORT, () => console.log(`Listening on localhost at port ${process.env.PORT}`));
+server.listen(process.env.SLACK_PORT, () => console.log(`Listening on localhost at port ${process.env.SLACK_PORT}`));
 
 
 /*
@@ -62,23 +62,12 @@ const defaultHandler = res => {
 // Handle CanteenBot requests
 const canteenHandler = (args, res) => {
   
-  // Where to find the menus
-  const menuDir = process.env.DATA_PATH;
-
   // Valid parameters
   const recognisedParams = [
     '',
-    'today',
-    'tomorrow',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-    'sunday',
     'ingredient',
-    'help'
+    'help',
+    ...common.menuTypes,
   ];
 
   // First check this request came from a recognised Slack team
@@ -119,7 +108,7 @@ const canteenHandler = (args, res) => {
       // For help requests, return a list of valid parameters
       case 'help':
         const helpText = '*Hungry? Type* `/canteen` *, optionally followed by one of these commands, to see what’s on offer:*';
-        const paramsText = recognisedParams.reduce((str, p) => `${str}\n${p}`);
+        const menusText = recognisedParams.reduce((str, p) => `${str}\n${p}`);
         payload.text = helpText + paramsText;
         break;
 
@@ -132,32 +121,11 @@ const canteenHandler = (args, res) => {
         else {
           const ingredient = params[1];
 
-          // Try to read the menu files
-          let files;
-          try {
-            // Only look at the JSON files
-            const fileNames =
-              fs.readdirSync(__dirname + '/' + menuDir)
-                .filter(f => helpers.endsWithJson);
-
-            // Read the actual file data
-            files = fileNames.map(helpers.readJsonFile.bind(null, menuDir));
-          } catch (err) {
-            return;
-          }
-
-          const strContainsIngredient = str => str.toLowerCase().includes(ingredient);
-          const hasIngredient = ({menu, location}) => strContainsIngredient(menu) || strContainsIngredient(location);
-
-          // Check the menu data in each day's file to see if it contains the ingredient
-          const daysWithIngredient =
-            files
-              .reduce((days, menu) => {
-                const ingredientOnMenu = menu.locations.some(hasIngredient);
-                return (ingredientOnMenu) ? [...days, menu.day] : days;
-              }, [])
-              // Filter out duplicate days
-              .filter((day, i, arr) => arr.indexOf(day) === i);
+          // TODO - hook this up and handle async
+          const daysWithIngredient = queryServer({
+            message_type: common.messageTypes.INGREDIENT,
+            message_param: ingredient
+          });
 
           // If we didn't find the ingredient
           if (daysWithIngredient.length === 0) {
@@ -181,13 +149,11 @@ const canteenHandler = (args, res) => {
         // Default to today's menu if nothing more specific was provided
         const requestedMenu = params[0] || 'today';
 
-        // Try to read the menu file
-        let menuData;
-        try {
-          menuData = helpers.readJsonFile(menuDir, requestedMenu);
-        } catch (err) {
-          return;
-        }
+        // TODO - hook this up and handle async
+        const menuData = queryServer({
+          message_type: common.messageTypes.MENU,
+          message_param: requestedMenu
+        });
 
         // Structure the response text and attachments;
         const menuText = menuData.locations.reduce((str, loc) => {
