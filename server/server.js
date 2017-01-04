@@ -25,8 +25,10 @@ const server = http.createServer((req, res) => {
       res.end('Error: both type and parameter must be provided and valid\n');
     }
 
-    const { MENU, INGREDIENT } = common.messageTypes;
+    // Data to return
     let data;
+
+    const { MENU, INGREDIENT } = common.messageTypes;
     switch (args.message_type) {
       case MENU:
         data = menuHandler(args.message_param);
@@ -67,14 +69,16 @@ const menuHandler = menu => {
   // Try to read the menu file
   let menuData;
   try {
-    menuData = helpers.readJsonFile(menuDir, menu);
+    menuData = helpers.readJsonFile(menuDir)(menu);
   } catch (err) {
     return { error: `Couldn't read menu file for "${menu}"` };
   }
 
   console.log(menuData);
 
-  return menuData;
+  return {
+    data: menuData
+  };
 };
 
 
@@ -92,19 +96,16 @@ const ingredientHandler = ingredient => {
         // Only look at the JSON files
         .filter(f => helpers.endsWithJson)
         // Read the actual file data
-        .map(helpers.readJsonFile.bind(null, menuDir));
+        .map(helpers.readJsonFile(menuDir));
   } catch (err) {
     return { error: `Couldn't read menu file: ${err}` };
   }
-
-  const strContainsIngredient = str => str.toLowerCase().includes(ingredient);
-  const hasIngredient = ({menu, location}) => strContainsIngredient(menu) || strContainsIngredient(location);
 
   // Check the menu data in each day's file to see if it contains the ingredient
   const daysWithIngredient =
     files
       .reduce((days, menu) => {
-        const ingredientOnMenu = menu.locations.some(hasIngredient);
+        const ingredientOnMenu = menu.locations.some(hasIngredient(ingredient));
         return (ingredientOnMenu) ? [...days, menu.day] : days;
       }, [])
       // Filter out duplicate days
@@ -116,6 +117,12 @@ const ingredientHandler = ingredient => {
     data: daysWithIngredient
   };
 };
+
+// Helper function to check whether a given ingredient exists within a given menu
+const hasIngredient = ingredient => ({menu, location}) => {
+  const ingredientLC = ingredient.toLowerCase();
+  return menu.toLowerCase().includes(ingredientLC) || location.toLowerCase().includes(ingredientLC);
+}
 
 
 /*
