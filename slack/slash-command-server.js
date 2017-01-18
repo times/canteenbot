@@ -118,36 +118,6 @@ const canteenHandler = (args, res) => {
       };
 
       request(ingredientOptions, handleServerResponse(res, returnIngredientResponse(ingredient)));
-
-      // Make the request
-      // request(ingredientOptions, (err, serverRes, body) => {
-      //   if (!err && serverRes.statusCode == 200) {
-
-      //     // Try to parse the response JSON
-      //     let bodyJson;
-      //     try {
-      //       bodyJson = JSON.parse(body);
-      //     } catch (err) {
-      //       console.log(`Error parsing JSON returned from server: ${err}`);
-      //       return;
-      //     }
-
-      //     // Check whether the response JSON was actually an error
-      //     if (bodyJson.error) {
-      //       returnErrorResponse(res, bodyJson.error);
-      //       return;
-      //     }
-
-      //     // Build and return the response to the user
-      //     const daysWithIngredient = bodyJson.data;
-      //     returnIngredientResponse(res, ingredient, daysWithIngredient);
-      //   } else {
-      //     console.log(`Error querying server for ingredient "${ingredient}"`);
-      //     console.log(err);
-      //     return;
-      //   }
-      // });
-
       break;
 
     // Otherwise it must be a menu request
@@ -166,44 +136,12 @@ const canteenHandler = (args, res) => {
 
       // Make the request
       request(menuOptions, handleServerResponse(res, returnMenuResponse(requestedMenu)));
-
-
-      // request(menuOptions, (err, serverRes, body) => {
-      //   if (!err && serverRes.statusCode == 200) {
-
-      //     // Try to parse the response JSON
-      //     let bodyJson;
-      //     try {
-      //       bodyJson = JSON.parse(body);
-      //     } catch (err) {
-      //       console.log(`Error parsing JSON returned from server: ${err}`);
-      //       return;
-      //     }
-
-      //     // Check whether the response JSON was actually an error
-      //     if (bodyJson.error) {
-      //       returnErrorResponse(res, bodyJson.error);
-      //       return;
-      //     }
-
-      //     // Build and return the response to the user
-      //     const menuData = bodyJson.data;
-      //     returnMenuResponse(res, requestedMenu, menuData);
-      //   } else {
-      //     console.log(`Error querying server for menu "${requestedMenu}"`);
-      //     console.log(err);
-      //     return;
-      //   }
-      // });
       break;
   }
 }
 
 
 const handleServerResponse = (res, cb) => (err, serverRes, body) => {
-
-  console.log(res, cb, err, serverRes, body);
-
   if (!err && serverRes.statusCode == 200) {
     // Try to parse the response JSON
     let bodyJson;
