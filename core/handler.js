@@ -1,65 +1,77 @@
-const http = require('http');
-const fs = require('fs');
+'use strict';
 
-require('dotenv').config();
+require('babel-polyfill');
 
-const helpers = require('../lib/helpers');
+// const helpers = require('../lib/helpers');
+const helpers = {
+  readJsonFile: () => ''
+}
 const common = require('../lib/common');
 
-// Where to find the menus
+const fetch = require('node-fetch');
+
 const menuDir = process.env.DATA_PATH;
 
+module.exports.handler = (event, context, callback) => {
 
-// The server to run
-const server = http.createServer((req, res) => {
-  console.log(`Received request via ${req.method}`);
+  const { httpMethod, queryStringParameters: args } = event;
+
+  console.log(`Received request via ${httpMethod}`);
+
+  let response = {
+    statusCode: 200
+  };
 
   // Requests for data
-  if (req.method == 'GET') {
-    const parameterString = req.url.split('?')[1];
-    const args = helpers.parseArgs(parameterString);
-
+  if (httpMethod == 'GET') {
+    
     if (!args.message_type || !args.message_param) {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Error: both type and parameter must be provided and valid\n');
+      response.body = 'Error: both message_type and message_param must be provided and valid';
+      callback(null, response);
     }
 
     // Data to return
-    let data;
+    // let data;
+
+    const sendData = (data) => {
+      const finalResponse = Object.assign({}, response, {body: JSON.stringify(data)});
+      console.log(finalResponse);
+      callback(null, finalResponse);
+    };
 
     const { MENU, INGREDIENT } = common.messageTypes;
     switch (args.message_type) {
       case MENU:
-        data = menuHandler(args.message_param);
+        // data = menuHandler(sendData, args.message_param);
+        menuHandler(sendData, args.message_param);
         break;
       case INGREDIENT:
-        data = ingredientHandler(args.message_param);
+        // data = ingredientHandler(sendData, args.message_param);
+        ingredientHandler(sendData, args.message_param);
         break;
       default:
-        data = errorHandler(args.message_type, args.message_param);
+        // data = errorHandler(sendData, args.message_type, args.message_param);
+        errorHandler(sendData, args.message_type, args.message_param);
         break;
     }
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(data));
+    // response.body = JSON.stringify(data);
   }
   
   // If we receive something not via GET
   else { 
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Error: invalid HTTP method\n');
+    response.body = 'Error: invalid HTTP method';
+    callback(null, response);
   }
-});
+};
 
 
-// Go
-server.listen(process.env.SERVER_PORT, () => console.log(`Listening on localhost at port ${process.env.SERVER_PORT}`));
 
 
 /*
  * Handle menu requests - returns menu data for the given day
  */
-const menuHandler = menu => {
+const menuHandler = (cb, menu) => {
   console.log('requested menu for ' + menu);
 
   // First validate the requested menu
@@ -67,24 +79,34 @@ const menuHandler = menu => {
 
   // Try to read the menu file
   let menuData;
-  try {
-    menuData = helpers.readJsonFile(menuDir)(menu);
-  } catch (err) {
-    return { error: `Couldn't read menu file for "${menu}"` };
-  }
+  // try {
+  const url = `http://elliotdavies.co.uk/dev/menu/${menu}.json`;
+  console.log(url);
 
-  console.log(menuData);
+  fetch(url)
+    .then(res => res.json())
+    .then(body => {
+      cb({ data: body });
+    })
+    .catch(err => {
+      console.log(err);
+      cb({ error: `Couldn't read menu file for "${menu}"` });
+    })
+    // menuData = helpers.readJsonFile(menuDir)(menu);
+  // } catch (err) {
+    
+  // }
 
-  return {
-    data: menuData
-  };
+  // return {
+  //   data: menuData
+  // };
 };
 
 
 /*
  * Handle ingredient requests - returns a list of days on which a given ingredient is available
  */
-const ingredientHandler = ingredient => {
+const ingredientHandler = (cb, ingredient) => {
   console.log('requested ingredient ' + ingredient);
 
   // Try to read the menu files
@@ -127,10 +149,10 @@ const hasIngredient = ingredient => ({menu, location}) => {
 /*
  * Handle invalid requests
  */
-const errorHandler = (type, param) => {
+const errorHandler = (cb, type, param) => {
   const errorMsg = `Received message of type ${type} with parameter ${param}`;
   console.log('Error: ' + errorMsg);
-  return {
+  cb({
     error: errorMsg
-  };
+  });
 }
