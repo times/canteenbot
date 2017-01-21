@@ -4,7 +4,7 @@
   "description": "A simple fact skill.",
   "main": "index.js",
   "scripts": {
-    "babel": "babel core/handler.js -o dist/core.js",
+    "babel": "babel slack/handler.js -o dist/slack.js",
     "start": "npm run babel -- -watch",
     "build": "npm run babel"
   },

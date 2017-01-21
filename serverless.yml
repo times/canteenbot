@@ -60,10 +60,20 @@ functions:
     handler: dist/core.handler
     events:
       - http:
-          path: /
+          path: /core
           method: get
     environment:
       DATA_URL: http://elliotdavies.co.uk/dev/menu/
+  slack:
+    handler: dist/slack.handler
+    events:
+      - http:
+          path: /slack
+          method: post
+    environment:
+      TIMES_TEAM: TqKr8LRrC7yP9eHiC54dznHS
+      CORE_URL: https://8049upo37k.execute-api.eu-west-1.amazonaws.com/dev/core
+
     # package:
       # exclude:
       #   ./**
