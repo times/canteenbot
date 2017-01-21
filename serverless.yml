@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: canteenbot-core
+service: canteenbot
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -56,14 +56,19 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  query:
-    handler: core/handler-dist.handler
+  core:
+    handler: dist/core.handler
     events:
       - http:
           path: /
           method: get
     environment:
-      DATA_PATH: data/
+      DATA_URL: http://elliotdavies.co.uk/dev/menu/
+    # package:
+      # exclude:
+      #   ./**
+      # include:
+      #   lib/**
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

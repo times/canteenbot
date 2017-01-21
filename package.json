@@ -4,8 +4,9 @@
   "description": "A simple fact skill.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "babel": "babel core/handler.js -o dist/core.js",
+    "start": "npm run babel -- -watch",
+    "build": "npm run babel"
   },
   "keywords": [
     "alexa",

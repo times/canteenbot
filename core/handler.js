@@ -2,157 +2,124 @@
 
 require('babel-polyfill');
 
-// const helpers = require('../lib/helpers');
-const helpers = {
-  readJsonFile: () => ''
-}
-const common = require('../lib/common');
-
 const fetch = require('node-fetch');
+const common = require('../lib/common');
+const helpers = require('../lib/helpers');
 
-const menuDir = process.env.DATA_PATH;
-
-module.exports.handler = (event, context, callback) => {
-
-  const { httpMethod, queryStringParameters: args } = event;
-
-  console.log(`Received request via ${httpMethod}`);
-
-  let response = {
-    statusCode: 200
-  };
-
-  // Requests for data
-  if (httpMethod == 'GET') {
-    
-    if (!args.message_type || !args.message_param) {
-      response.body = 'Error: both message_type and message_param must be provided and valid';
-      callback(null, response);
-    }
-
-    // Data to return
-    // let data;
-
-    const sendData = (data) => {
-      const finalResponse = Object.assign({}, response, {body: JSON.stringify(data)});
-      console.log(finalResponse);
-      callback(null, finalResponse);
-    };
-
-    const { MENU, INGREDIENT } = common.messageTypes;
-    switch (args.message_type) {
-      case MENU:
-        // data = menuHandler(sendData, args.message_param);
-        menuHandler(sendData, args.message_param);
-        break;
-      case INGREDIENT:
-        // data = ingredientHandler(sendData, args.message_param);
-        ingredientHandler(sendData, args.message_param);
-        break;
-      default:
-        // data = errorHandler(sendData, args.message_type, args.message_param);
-        errorHandler(sendData, args.message_type, args.message_param);
-        break;
-    }
-
-    // response.body = JSON.stringify(data);
-  }
-  
-  // If we receive something not via GET
-  else { 
-    response.body = 'Error: invalid HTTP method';
-    callback(null, response);
-  }
-};
+// Where to find the menus
+const menuUrl = process.env.DATA_URL;
+const getMenuUrl = helpers.buildUrl(menuUrl);
 
 
+/*
+ * Response helper functions
+ */
+
+// Send a generic response. Default to 200 OK
+const sendResponse = (callback, data, statusCode = 200) => {
+  callback(null, {
+    statusCode,
+    body: JSON.stringify(data)
+  });
+}
+
+// Send data back
+const sendData = (callback, data) => {
+  sendResponse(callback, { data });
+}
+
+// Send an error back. Default to 400 (Bad Request)
+const sendError = (callback, error, statusCode = 400) => {
+  sendResponse(callback, { error }, statusCode);
+}
 
 
 /*
  * Handle menu requests - returns menu data for the given day
  */
-const menuHandler = (cb, menu) => {
-  console.log('requested menu for ' + menu);
+const menuHandler = (callback, menu) => {
+  // Validate the requested menu
+  if (!common.menuTypes.includes(menu)) {
+    sendError(callback, `Invalid menu type ${menu}.`);
+    return;
+  }
 
-  // First validate the requested menu
-  if (!common.menuTypes.includes(menu)) return { error: `Invalid menu type ${menu}` };
-
-  // Try to read the menu file
-  let menuData;
-  // try {
-  const url = `http://elliotdavies.co.uk/dev/menu/${menu}.json`;
-  console.log(url);
-
-  fetch(url)
+  // Fetch the JSON for that menu
+  fetch(getMenuUrl(menu))
     .then(res => res.json())
-    .then(body => {
-      cb({ data: body });
-    })
-    .catch(err => {
-      console.log(err);
-      cb({ error: `Couldn't read menu file for "${menu}"` });
-    })
-    // menuData = helpers.readJsonFile(menuDir)(menu);
-  // } catch (err) {
-    
-  // }
-
-  // return {
-  //   data: menuData
-  // };
+    .then(body => sendData(callback, body))
+    .catch(err => sendData(callback, `Couldn't read menu file for "${menu}"`));
 };
 
 
 /*
  * Handle ingredient requests - returns a list of days on which a given ingredient is available
  */
-const ingredientHandler = (cb, ingredient) => {
-  console.log('requested ingredient ' + ingredient);
+const ingredientHandler = (callback, ingredient) => {
+  // Fetch the JSON for each of the menus
+  const promises =
+    helpers.days
+      .map(getMenuUrl)
+      .map(url => fetch(url).then(res => res.json()));
 
-  // Try to read the menu files
-  let files;
-  try {
-    files =
-      fs.readdirSync(__dirname + '/' + menuDir)
-        // Only look at the JSON files
-        .filter(f => helpers.endsWithJson)
-        // Read the actual file data
-        .map(helpers.readJsonFile(menuDir));
-  } catch (err) {
-    return { error: `Couldn't read menu file: ${err}` };
-  }
-
-  // Check the menu data in each day's file to see if it contains the ingredient
-  const daysWithIngredient =
-    files
-      .reduce((days, menu) => {
-        const ingredientOnMenu = menu.locations.some(hasIngredient(ingredient));
-        return (ingredientOnMenu) ? [...days, menu.day] : days;
-      }, [])
-      // Filter out duplicate days
-      .filter((day, i, arr) => arr.indexOf(day) === i);
-
-  console.log(daysWithIngredient);
-
-  return {
-    data: daysWithIngredient
-  };
+  // Return only the days containing that ingredient
+  Promise.all(promises)
+    .then(getDaysWithIngredient(ingredient))
+    .then(days => sendData(callback, days))
+    .catch(err => sendError(callback, err));
 };
 
-// Helper function to check whether a given ingredient exists within a given menu
+// Check each menu to see if it contains the given ingredient
+const getDaysWithIngredient = ingredient => menus =>
+  menus
+    .filter(menu => menu.locations.some(hasIngredient(ingredient)))
+    .map(menu => menu.day);
+
+// Check whether a given ingredient exists within a given menu
 const hasIngredient = ingredient => ({menu, location}) => {
   const ingredientLC = ingredient.toLowerCase();
   return menu.toLowerCase().includes(ingredientLC) || location.toLowerCase().includes(ingredientLC);
-}
+};
 
 
-/*
- * Handle invalid requests
+/**
+ * Entry point
  */
-const errorHandler = (cb, type, param) => {
-  const errorMsg = `Received message of type ${type} with parameter ${param}`;
-  console.log('Error: ' + errorMsg);
-  cb({
-    error: errorMsg
-  });
-}
+module.exports.handler = (event, context, callback) => {
+
+  // Parse arguments
+  const { httpMethod, queryStringParameters: args } = event;
+
+  // Check the request was recieved via a supported method
+  if (httpMethod !== 'GET') {
+    sendError(callback, 'Invalid HTTP method. Method should be GET.', 405); // Method Not Allowed
+    return;
+  }
+
+  // Check parameters were provided
+  if (!args) {
+    sendError(callback, 'No arguments provided.');
+    return;
+  }
+
+  // Check we got the correct parameters
+  if (!args.message_type || !args.message_param) {
+    sendError(callback, 'Both message_type and message_param must be provided.');
+    return;
+  }
+
+  // Valid values for message_type
+  const { MENU, INGREDIENT } = common.messageTypes;
+
+  switch (args.message_type) {
+    case MENU:
+      menuHandler(callback, args.message_param);
+      break;
+    case INGREDIENT:
+      ingredientHandler(callback, args.message_param);
+      break;
+    default:
+      sendError(callback, `Invalid message_type ${args.message_type}.`);
+      break;
+  };
+};

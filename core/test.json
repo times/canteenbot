@@ -1,7 +1,7 @@
 {
   "httpMethod": "GET",
   "queryStringParameters": {
-    "message_type": "MENU",
-    "message_param": "today"
+    "message_type": "INGREDIENT",
+    "message_param": "potato"
   }
 }
