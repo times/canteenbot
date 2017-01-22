@@ -8,7 +8,7 @@ const { sendData, sendError, days, buildMenuUrl } = require('../lib/helpers');
 
 // Where to find the menus
 const baseMenuUrl = process.env.DATA_URL;
-const getMenuUrl = helpers.buildMenuUrl(baseMenuUrl);
+const getMenuUrl = buildMenuUrl(baseMenuUrl);
 
 
 /*
@@ -35,7 +35,7 @@ const menuHandler = (callback, menu) => {
 const ingredientHandler = (callback, ingredient) => {
   // Fetch the JSON for each of the menus
   const promises =
-    helpers.days
+    days
       .map(getMenuUrl)
       .map(url => fetch(url).then(res => res.json()));
 
