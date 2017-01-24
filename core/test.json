@@ -2,6 +2,6 @@
   "httpMethod": "GET",
   "queryStringParameters": {
     "message_type": "INGREDIENT",
-    "message_param": "potato"
+    "message_param": "fish"
   }
 }

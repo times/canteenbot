@@ -74,11 +74,17 @@ functions:
       TIMES_TEAM: TqKr8LRrC7yP9eHiC54dznHS
       CORE_URL: https://8049upo37k.execute-api.eu-west-1.amazonaws.com/dev/core
 
-    # package:
-      # exclude:
-      #   ./**
-      # include:
-      #   lib/**
+package:
+  # individually: true
+  exclude:
+    - node_modules/**
+    - assets/**
+    - data/**
+    - package.json
+    - .gitignore
+    - README.md
+  # include:
+  #   lib/**
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

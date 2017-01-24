@@ -1,5 +1,7 @@
 'use strict';
 
+require('babel-polyfill');
+
 const fetch = require('node-fetch');
 const common = require('../lib/common');
 const { sendResponse, sendError, days } = require('../lib/helpers');
