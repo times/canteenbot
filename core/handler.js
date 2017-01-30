@@ -4,11 +4,13 @@ require('babel-polyfill');
 
 const fetch = require('node-fetch');
 const common = require('../lib/common');
-const { sendData, sendError, days, buildMenuUrl } = require('../lib/helpers');
+const { sendData, sendError, days } = require('../lib/helpers');
 
 // Where to find the menus
-const baseMenuUrl = process.env.DATA_URL;
-const getMenuUrl = buildMenuUrl(baseMenuUrl);
+const menuUrl = process.env.DATA_URL;
+
+// Helper
+const buildMenuUrl = day => `${menuUrl}${day}.json`;
 
 
 /*
@@ -22,7 +24,7 @@ const menuHandler = (callback, menu) => {
   }
 
   // Fetch the JSON for that menu
-  fetch(getMenuUrl(menu))
+  fetch(buildMenuUrl(menu))
     .then(res => res.json())
     .then(body => sendData(callback, body))
     .catch(err => sendData(callback, `Couldn't read menu file for "${menu}"`));
@@ -36,7 +38,7 @@ const ingredientHandler = (callback, ingredient) => {
   // Fetch the JSON for each of the menus
   const promises =
     days
-      .map(getMenuUrl)
+      .map(buildMenuUrl)
       .map(url => fetch(url).then(res => res.json()));
 
   // Return only the days containing that ingredient

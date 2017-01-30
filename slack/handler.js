@@ -15,26 +15,38 @@ const buildUrl = (type, param) => `${coreUrl}?message_type=${type}&message_param
  * TODO
  *  - use sendSlackResponse() for errors too?
  *  - work out what should be in helpers and what should stay in here / core
+ *  - abstract queries to core server into helper
  */
+
+
+const parseCommand = body => {
+  return body
+    .split('&')
+    .reduce((params, str) => {
+      const parts = str.split('=').map(decodeURIComponent);
+      return Object.assign({}, params, {
+        [parts[0]]: parts[1]
+      })
+    }, {});
+
+};
 
 
 /**
  * Entry point
  */
 module.exports.handler = (event, context, callback) => {
-
-  // Parse arguments
-  const { httpMethod, token, command, text } = event;
-
-  // console.log(JSON.stringify(event));
-
+  
   // Check the request was recieved via a supported method
-  if (httpMethod !== 'POST') {
+  if (event.httpMethod !== 'POST') {
     sendError(callback, 'Invalid HTTP method. Method should be POST.', 405);
     return;
   }
 
-  if (command !== '/canteen') {
+  // Parse arguments
+  const { token, command, text } = parseCommand(event.body);
+
+  if (command !== '/canteen-t1000') { // For testing only
     sendError(callback, `Sorry, the service ${command} isn't supported.`);
     return;
   }

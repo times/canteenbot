@@ -71,7 +71,8 @@ functions:
           path: /slack
           method: post
     environment:
-      TIMES_TEAM: TqKr8LRrC7yP9eHiC54dznHS
+      # TIMES_TEAM: TqKr8LRrC7yP9eHiC54dznHS
+      TIMES_TEAM: uK8HKof9vicacg1yD5hiKori
       CORE_URL: https://8049upo37k.execute-api.eu-west-1.amazonaws.com/dev/core
 
 package:
