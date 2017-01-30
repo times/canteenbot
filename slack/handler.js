@@ -4,21 +4,11 @@ require('babel-polyfill');
 
 const fetch = require('node-fetch');
 const common = require('../lib/common');
-const { sendResponse, sendError, days } = require('../lib/helpers');
+const { sendResponse, days, buildCoreQuery } = require('../lib/helpers');
 
 const coreUrl = process.env.CORE_URL;
 
-const buildUrl = (type, param) => `${coreUrl}?message_type=${type}&message_param=${encodeURIComponent(param)}`;
-
-
-/**
- * TODO
- *  - use sendSlackResponse() for errors too?
- *  - work out what should be in helpers and what should stay in here / core
- *  - abstract queries to core server into helper
- */
-
-
+// Helper
 const parseCommand = body => {
   return body
     .split('&')
@@ -28,7 +18,6 @@ const parseCommand = body => {
         [parts[0]]: parts[1]
       })
     }, {});
-
 };
 
 
@@ -39,20 +28,20 @@ module.exports.handler = (event, context, callback) => {
   
   // Check the request was recieved via a supported method
   if (event.httpMethod !== 'POST') {
-    sendError(callback, 'Invalid HTTP method. Method should be POST.', 405);
+    sendErrorResponse(callback, 'Invalid HTTP method. Method should be POST.', 405);
     return;
   }
 
   // Parse arguments
   const { token, command, text } = parseCommand(event.body);
 
-  if (command !== '/canteen-t1000') { // For testing only
-    sendError(callback, `Sorry, the service ${command} isn't supported.`);
+  if (command !== '/canteen-t1000') { // For testing only, should be /canteen
+    sendErrorResponse(callback, `Sorry, the service ${command} isn't supported.`);
     return;
   }
 
   if (token !== process.env.TIMES_TEAM) {
-    sendError(callback, 401, `Invalid token.`)
+    sendErrorResponse(callback, 401, `Invalid token.`)
     return;
   }
 
@@ -78,7 +67,7 @@ const canteenHandler = (callback, command, text) => {
 
   // If we don't recognise the parameter, return an error
   if (!recognisedParams.includes(firstParam)) {
-    sendError(callback, `Sorry, I didn’t recognise the command "${firstParam}."`);
+    sendErrorResponse(callback, `Sorry, I didn’t recognise the command "${firstParam}."`);
     return;
   }
 
@@ -93,19 +82,19 @@ const canteenHandler = (callback, command, text) => {
 
       // Check the user passed an ingredient to check
       if (!ingredient) {
-        sendError(callback, 'You need to give me an ingredient to check!');
+        sendErrorResponse(callback, 'You need to give me an ingredient to check!');
         return;
       }
 
       // Query the core server
-      fetch(buildUrl(common.messageTypes.INGREDIENT, ingredient))
+      fetch(buildCoreQuery(common.messageTypes.INGREDIENT, ingredient))
         .then(res => res.json())
         .then(body => {
-          if (body.error) sendError(callback, body.error);
+          if (body.error) sendErrorResponse(callback, body.error);
           else if (body.data) sendIngredientResponse(callback, ingredient, body.data);
           else throw new Error('Response from core server did not contain error or data');
         })
-        .catch(err => sendError(callback, `Error querying core server: ${err}`));
+        .catch(err => sendErrorResponse(callback, `Error querying core server: ${err}`));
       break;
 
     // Otherwise it must be a menu request
@@ -114,14 +103,14 @@ const canteenHandler = (callback, command, text) => {
       const requestedMenu = firstParam || 'today';
 
       // Query the core server
-      fetch(buildUrl(common.messageTypes.MENU, requestedMenu))
+      fetch(buildCoreQuery(common.messageTypes.MENU, requestedMenu))
         .then(res => res.json())
         .then(body => {
-          if (body.error) sendError(callback, body.error);
+          if (body.error) sendErrorResponse(callback, body.error);
           else if (body.data) sendMenuResponse(callback, requestedMenu, body.data);
           else throw new Error('Response from core server did not contain error or data');
         })
-        .catch(err => sendError(callback, `Error querying core server: ${err}`));
+        .catch(err => sendErrorResponse(callback, `Error querying core server: ${err}`));
       break;
   }
 };
@@ -135,6 +124,18 @@ const sendSlackResponse = (callback, text = '', attachments = []) => {
   };
 
   sendResponse(callback, payload);
+}
+
+
+// Return an error to Slack
+const sendErrorResponse = (callback, text) => {
+  sendSlackResponse(callback, '*Something went wrong*', [
+    {
+      fallback: text,
+      text,
+      color: 'danger',
+    }
+  ])
 }
 
 

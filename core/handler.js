@@ -4,13 +4,23 @@ require('babel-polyfill');
 
 const fetch = require('node-fetch');
 const common = require('../lib/common');
-const { sendData, sendError, days } = require('../lib/helpers');
+const { sendResponse, days } = require('../lib/helpers');
 
 // Where to find the menus
 const menuUrl = process.env.DATA_URL;
 
-// Helper
+// Helpers
 const buildMenuUrl = day => `${menuUrl}${day}.json`;
+
+// Send data back
+const sendData = (callback, data) => {
+  sendResponse(callback, { data });
+}
+
+// Send an error back. Default to 400 (Bad Request)
+const sendError = (callback, error, statusCode = 400) => {
+  sendResponse(callback, { error }, statusCode);
+}
 
 
 /*
