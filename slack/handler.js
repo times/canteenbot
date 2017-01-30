@@ -87,7 +87,7 @@ const canteenHandler = (callback, command, text) => {
       }
 
       // Query the core server
-      fetch(buildCoreQuery(common.messageTypes.INGREDIENT, ingredient))
+      fetch(buildCoreQuery(coreUrl, common.messageTypes.INGREDIENT, ingredient))
         .then(res => res.json())
         .then(body => {
           if (body.error) sendErrorResponse(callback, body.error);
@@ -103,7 +103,7 @@ const canteenHandler = (callback, command, text) => {
       const requestedMenu = firstParam || 'today';
 
       // Query the core server
-      fetch(buildCoreQuery(common.messageTypes.MENU, requestedMenu))
+      fetch(buildCoreQuery(coreUrl, common.messageTypes.MENU, requestedMenu))
         .then(res => res.json())
         .then(body => {
           if (body.error) sendErrorResponse(callback, body.error);

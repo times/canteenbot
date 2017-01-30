@@ -2,6 +2,7 @@ module.exports = {
   entry: {
     core: './core/handler.js',
     slack: './slack/handler.js',
+    'slack-notifier': './slack-notifier/handler.js',
   },
   output: {
     path: './dist',
