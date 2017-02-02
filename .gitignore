@@ -1,6 +1,5 @@
 node_modules
 dist
 data
-.env
 .serverless
 .DS_Store

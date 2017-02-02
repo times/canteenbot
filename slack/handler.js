@@ -35,7 +35,7 @@ module.exports.handler = (event, context, callback) => {
   // Parse arguments
   const { token, command, text } = parseCommand(event.body);
 
-  if (command !== '/canteen-t1000') { // For testing only, should be /canteen
+  if (command !== '/canteen') {
     sendErrorResponse(callback, `Sorry, the service ${command} isn't supported.`);
     return;
   }
