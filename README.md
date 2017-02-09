@@ -135,6 +135,8 @@ TODO: rewrite this as a Serverless function.
 
 The Serverless configuration is stored in `serverless.yml`.
 
+Environment variables are stored in `env.yml`, which should not be committed to version control. A sample version of this file is included as `env-sample.yml`.
+
 
 # Development
 

@@ -9,13 +9,12 @@ provider:
   name: aws
   runtime: nodejs4.3
   region: eu-west-1
-  profile: elliot
-  stage: prod
+  profile: ${file(env.yml):profile}
+  stage: ${file(env.yml):stage}
 
   ## Service-wide environment variables
   environment:
-    # CORE_URL: https://8049upo37k.execute-api.eu-west-1.amazonaws.com/dev/core
-    CORE_URL: https://3wt5txpgb1.execute-api.eu-west-1.amazonaws.com/prod/core
+    CORE_URL: ${file(env.yml):CORE_URL}
 
 ## Individual parts of the service
 functions:
@@ -37,8 +36,7 @@ functions:
           path: /slack
           method: post
     environment:
-      TIMES_TEAM: TqKr8LRrC7yP9eHiC54dznHS
-      # TIMES_TEAM: uK8HKof9vicacg1yD5hiKori
+      TIMES_TEAM: ${file(env.yml):TIMES_TEAM}
 
   ## Post to Slack on a schedule
   slack-notifier:
@@ -46,7 +44,7 @@ functions:
     events:
       - schedule: cron(15 12 * * ? *)
     environment:
-      WEBHOOK_URL: https://hooks.slack.com/services/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
+      WEBHOOK_URL: ${file(env.yml):WEBHOOK_URL}
 
 ## Bundling options
 package:

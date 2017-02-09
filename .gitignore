@@ -3,3 +3,4 @@ dist
 data
 .serverless
 .DS_Store
+env.yml
