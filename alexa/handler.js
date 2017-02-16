@@ -38,12 +38,8 @@ module.exports.handler = (event, context, callback) => {
       sendHelpResponse(callback);
       break;
 
-    // When asked to stop
+    // When asked to stop or cancel
     case 'Stop':
-      sendStopResponse(callback);
-      break;
-
-    // When asked to cancel
     case 'Cancel':
       sendStopResponse(callback);
       break;
@@ -70,7 +66,7 @@ module.exports.handler = (event, context, callback) => {
 
 
 // Launching is the same as asking for help, for now
-const sendLaunchResponse = sendHelpResponse;
+const sendLaunchResponse = callback => sendHelpResponse(callback);
 
 
 // Return a menu
