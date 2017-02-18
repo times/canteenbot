@@ -17,6 +17,9 @@
     "intent": {
       "name": "Help",
       "slots": {
+        "MenuType": {
+          "value": "Wednesday"
+        }
       }
     }
   },
