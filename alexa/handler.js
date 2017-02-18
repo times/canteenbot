@@ -22,6 +22,7 @@ module.exports.handler = (event, context, callback) => {
   // event.session.application.applicationId === env.applicationId
 
   const intent = (request.type === 'LaunchRequest') ? 'Launch' : request.intent.name;
+  const slots = request.intent.slots;
 
   switch (intent) {
     // When the skill is opened without a command
@@ -40,11 +41,29 @@ module.exports.handler = (event, context, callback) => {
       sendStopResponse(callback);
       break;
 
+    case 'GetIngredient':
+      const ingredient = slots && slots.IngredientType.value;
+
+      if (!ingredient) {
+        sendErrorResponse(callback, `You need to give me an ingredient to check!`);
+        return;
+      }
+
+      // Query the core server
+      fetch(buildCoreQuery(coreUrl, common.messageTypes.INGREDIENT, ingredient))
+        .then(res => res.json())
+        .then(body => {
+          if (body.error) sendErrorResponse(callback, body.error);
+          else if (body.data) sendIngredientResponse(callback, ingredient, body.data);
+          else throw new Error('Response from core server did not contain error or data');
+        })
+        .catch(err => sendErrorResponse(callback, `Sorry, there was a problem retrieving the menu.`));
+      break;
+
     // When asked for a menu
     case 'GetMenu':
     default:
       // Default to today's menu
-      const slots = request.intent.slots;
       const slotMenuType = (slots && slots.MenuType.value) || 'today';
 
       const requestedMenu = slotMenuType.replace(`'s`, '').toLowerCase();
@@ -94,6 +113,32 @@ const sendMenuResponse = (callback, requestedMenu, menuData) => {
   sendResponse(callback, speechOutputSSML, {
     title: `${day}'s menu`,
     content: cardContent
+  });
+};
+
+
+// Ingredients
+const sendIngredientResponse = (callback, ingredient, daysWithIngredient) => {
+
+  let responseText;
+
+  // If we didn't find the ingredient
+  if (daysWithIngredient.length === 0) {
+    responseText = `Sorry, I couldn’t find "${ingredient}" in the menu this week`;
+  }
+  // If we did find it
+  else {
+    const daysText = daysWithIngredient.reduce((str, d, i, arr) => {
+      if (i === 0) return d;
+      if (i === arr.length - 1) return `${str} and ${d}`;
+      return `${str}, ${d}`;
+    }, '');
+    responseText = `Looks like the canteen are serving ${ingredient} on ${daysText} this week`;
+  }
+
+  sendResponse(callback, responseText, {
+    title: `Ingredients`,
+    content: responseText
   });
 };
 

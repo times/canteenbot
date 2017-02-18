@@ -15,10 +15,10 @@
     "locale": "en-GB",
     "timestamp": "2017-02-16T21:05:05Z",
     "intent": {
-      "name": "Help",
+      "name": "GetIngredient",
       "slots": {
-        "MenuType": {
-          "value": "Wednesday"
+        "IngredientType": {
+          "value": "burger"
         }
       }
     }
