@@ -45,7 +45,9 @@ module.exports.handler = (event, context, callback) => {
     default:
       // Default to today's menu
       const slots = request.intent.slots;
-      const requestedMenu = (slots && slots.MenuType.value) || 'today';
+      const slotMenuType = (slots && slots.MenuType.value) || 'today';
+
+      const requestedMenu = slotMenuType.replace(`'s`, '').toLowerCase();
 
       if (!common.menuTypes.includes(requestedMenu)) {
         sendErrorResponse(callback, `I didn't recognise the menu type "${requestedMenu}"`);
@@ -53,7 +55,7 @@ module.exports.handler = (event, context, callback) => {
       }
 
       // Query the core server
-      fetch(buildCoreQuery(coreUrl, common.messageTypes.MENU, requestedMenu.toLowerCase()))
+      fetch(buildCoreQuery(coreUrl, common.messageTypes.MENU, requestedMenu))
         .then(res => res.json())
         .then(body => {
           if (body.error) sendErrorResponse(callback, body.error);
