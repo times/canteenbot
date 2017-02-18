@@ -4,7 +4,7 @@ require('babel-polyfill');
 
 const fetch = require('node-fetch');
 const common = require('../lib/common');
-const { days, buildCoreQuery } = require('../lib/helpers');
+const { buildCoreQuery } = require('../lib/helpers');
 
 const coreUrl = process.env.CORE_URL;
 
