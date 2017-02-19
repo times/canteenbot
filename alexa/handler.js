@@ -45,7 +45,7 @@ module.exports.handler = (event, context, callback) => {
     default:
       // Default to today's menu
       const slots = request.intent.slots;
-      const slotMenuType = (slots && slots.MenuType.value) || 'today';
+      const slotMenuType = (menuSlots && menuSlots.MenuType.value) || 'today';
 
       const requestedMenu = slotMenuType.replace(`'s`, '').toLowerCase();
 
