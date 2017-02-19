@@ -22,7 +22,6 @@ module.exports.handler = (event, context, callback) => {
   // event.session.application.applicationId === env.applicationId
 
   const intent = (request.type === 'LaunchRequest') ? 'Launch' : request.intent.name;
-  const slots = request.intent.slots;
 
   switch (intent) {
     // When the skill is opened without a command
@@ -42,7 +41,8 @@ module.exports.handler = (event, context, callback) => {
       break;
 
     case 'GetIngredient':
-      const ingredient = slots && slots.IngredientType.value;
+      const ingredientSlots = request.intent.slots;
+      const ingredient = ingredientSlots && ingredientSlots.IngredientType.value;
 
       if (!ingredient) {
         sendErrorResponse(callback, `You need to give me an ingredient to check!`);
@@ -64,7 +64,8 @@ module.exports.handler = (event, context, callback) => {
     case 'GetMenu':
     default:
       // Default to today's menu
-      const slotMenuType = (slots && slots.MenuType.value) || 'today';
+      const menuSlots = request.intent.slots;
+      const slotMenuType = (menuSlots && menuSlots.MenuType.value) || 'today';
 
       const requestedMenu = slotMenuType.replace(`'s`, '').toLowerCase();
 
