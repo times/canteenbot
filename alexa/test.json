@@ -1,0 +1,27 @@
+{
+  "session": {
+    "sessionId": "12345",
+    "application": {
+      "applicationId": "amzn1.ask.skill.123456"
+    },
+    "attributes": {},
+    "user": {
+      "userId": "amzn1.ask.account.ABCDEF"
+    },
+    "new": true
+  },
+  "request": {
+    "type": "IntentRequest",
+    "locale": "en-GB",
+    "timestamp": "2017-02-16T21:05:05Z",
+    "intent": {
+      "name": "GetMenu",
+      "slots": {
+        "MenuType": {
+          "value": "Wednesday"
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

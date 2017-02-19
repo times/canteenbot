@@ -46,6 +46,12 @@ functions:
     environment:
       WEBHOOK_URL: ${file(env.yml):WEBHOOK_URL}
 
+  ## Alexa skill
+  alexa:
+    handler: dist/alexa.handler
+    events:
+      - alexaSkill
+
 ## Bundling options
 package:
   # individually: true
