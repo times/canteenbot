@@ -4,11 +4,12 @@ module.exports = {
     slack: './slack/handler.js',
     'slack-notifier': './slack-notifier/handler.js',
     alexa: './alexa/handler.js',
+    scraper: './scraper/handler.js',
   },
   output: {
     path: './dist',
     filename: '[name].js',
-    libraryTarget: "commonjs",
+    libraryTarget: 'commonjs',
   },
   target: 'node',
   module: {
@@ -18,9 +19,9 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel-loader',
         query: {
-          presets: [ 'es2015' ]
-        }
-      }
-    ]
+          presets: ['es2015'],
+        },
+      },
+    ],
   },
-}
+};
