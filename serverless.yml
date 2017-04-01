@@ -55,6 +55,8 @@ functions:
   ## Menu scraper
   scraper:
     handler: dist/scraper.handler
+    events:
+      - schedule: cron(0 * * * ? *)
 
 ## Bundling options
 package:

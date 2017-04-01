@@ -6,7 +6,10 @@ const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const aws = require('aws-sdk');
 
-const S3 = new aws.S3();
+const S3 = new aws.S3({
+  signatureVersion: 'v4',
+  region: 'eu-west-1',
+});
 
 const { days } = require('../lib/helpers');
 
@@ -64,10 +67,11 @@ const parseMenu = $ => {
 const writeToS3 = data => {
   S3.putObject(
     {
-      Bucket: 'canteenbot-menus',
+      Bucket: 'canteenbot-data',
       Key: `${data.day.toLowerCase()}.json`,
-      ACL: 'public-read',
+      ContentType: 'application/json',
       Body: JSON.stringify(data),
+      ACL: 'public-read',
     },
     (err, res) => {
       if (err) console.log(`Error writing ${data.day} to S3:`, err);
