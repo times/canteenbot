@@ -64,18 +64,18 @@ const parseMenu = $ => {
 };
 
 // Write a menu JSON object to S3
-const writeToS3 = data => {
+const writeToS3 = (day, data) => {
   S3.putObject(
     {
       Bucket: 'canteenbot-data',
-      Key: `${data.day.toLowerCase()}.json`,
+      Key: `${day}.json`,
       ContentType: 'application/json',
       Body: JSON.stringify(data),
       ACL: 'public-read',
     },
     (err, res) => {
-      if (err) console.log(`Error writing ${data.day} to S3:`, err);
-      else console.log(`Wrote ${data.day} to S3`);
+      if (err) console.log(`Error writing ${day} to S3:`, err);
+      else console.log(`Wrote ${day} to S3`);
     }
   );
 };
@@ -88,6 +88,17 @@ module.exports.handler = (event, context, callback) => {
       .then(res => res.text())
       .then(html => parseMenu(cheerio.load(html)))
       .then(menuItems => buildJson(day, url, menuItems))
-      .then(writeToS3);
+      .then(json => {
+        // Write the current day's data
+        writeToS3(day, json);
+
+        // Numbers from 0 (Mon) to 6 (Sun)
+        const today = (new Date().getDay() + 6) % 7;
+        const tomorrow = (today + 1) % 7;
+
+        // Check if we also need to write 'today' or 'tomorrow'
+        if (i === today) writeToS3('today', json);
+        if (i === tomorrow) writeToS3('tomorrow', json);
+      });
   });
 };
