@@ -88,9 +88,7 @@ Error messages will be JSON in the following format:
 
 ## Scraper
 
-The scraper function scrapes the canteen’s website on a regular basis, converts the results to JSON and places the resulting files on a server.
-
-TODO: rewrite this as a Serverless function.
+The `scraper` function scrapes the canteen’s website on a regular basis, converts the results to JSON and places the resulting files on S3.
 
 
 ## Slack
@@ -124,11 +122,15 @@ The `slack-notifier` function posts the current day’s menu to a Slack [incomin
 
 ## Alexa
 
-The Alexa function makes CanteenBot available via a Amazon Alexa skill.
+The `alexa` function makes CanteenBot available via an Amazon Alexa skill, available [here](http://alexa.amazon.co.uk/spa/index.html?#skills/dp/B01M4IGA2S) on the skill store.
 
-The prototype Alexa skill can be found [here](http://alexa.amazon.co.uk/spa/index.html?#skills/dp/B01M4IGA2S) on the skill store.
+The name of the skill is TNB Canteen and you can invoke it with `news canteen`. For example:
 
-TODO: rewrite this as a Serverless function.
+- "Alexa, open news canteen"
+- "Alexa, ask news canteen what's for lunch today"
+- "Alexa, ask news canteen what's on the menu tomorrow"
+
+The Alexa skill does not currently support ingredient queries.
 
 
 ## Serverless
