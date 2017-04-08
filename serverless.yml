@@ -26,7 +26,7 @@ functions:
           path: /core
           method: get
     environment:
-      DATA_URL: http://elliotdavies.co.uk/dev/menu/
+      DATA_URL: https://canteenbot-data.s3-eu-west-2.amazonaws.com/
 
   ## Slash-command listener
   slack:
