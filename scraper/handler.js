@@ -23,14 +23,16 @@ String.prototype.capitalise = function() {
 
 // Format a `location` string
 const formatLocation = str =>
-  str.trim().toLowerCase().split(' ').map(s => s.capitalise()).join(' ');
+  str
+    ? str.trim().toLowerCase().split(' ').map(s => s.capitalise()).join(' ')
+    : '';
 
 // Format a `menu` string
 const formatMenu = text =>
-  text.replace(/\s\s+/g, ' ').trim().toLowerCase().capitalise();
+  text ? text.replace(/\s\s+/g, ' ').trim().toLowerCase().capitalise() : '';
 
 // Strip HTML tags from a string
-const stripTags = html => html.replace(/<.*?>/g, ' ');
+const stripTags = html => (html ? html.replace(/<.*?>/g, ' ') : '');
 
 // Strip HTML entities from a string
 const stripEntities = ($, text) => $('<div>').html(text).text();
