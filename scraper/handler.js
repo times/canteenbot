@@ -48,11 +48,13 @@ const buildJson = (day, url, menuItems) => ({
 
 // Parse menu data from a scraped HTML page
 const parseMenu = $ => {
-  const menuItems = [];
   const menuHtml = $('#content-wrapper div.sqs-block-content');
+  const locations = $(menuHtml).find('h2').toArray();
 
-  const locations = $(menuHtml).find('h2');
-  locations.each((i, loc) => {
+  return locations.reduce((items, loc) => {
+    const location = formatLocation($(loc).text());
+
+    // Find all the `h3`s between this `h2` and the next `h2`
     const menuTextNodes = $(loc).nextUntil('h2', 'h3').toArray();
     const menu = menuTextNodes
       .map(m => $(m).html())
@@ -61,15 +63,11 @@ const parseMenu = $ => {
       .map(formatMenu)
       .join('');
 
-    const menuObj = {
-      location: formatLocation($(loc).text()),
-      menu,
-    };
+    // Filter empties; can occur when there is an extra `h2`
+    if (location === '' && menu === '') return items;
 
-    menuItems.push(menuObj);
-  });
-
-  return menuItems;
+    return items.concat([{ location, menu }]);
+  }, []);
 };
 
 // Write a menu JSON object to S3
@@ -99,15 +97,16 @@ module.exports.handler = (event, context, callback) => {
       .then(menuItems => buildJson(day, url, menuItems))
       .then(json => {
         // Write the current day's data
-        writeToS3(day, json);
+        // writeToS3(day, json);
+        console.log(json);
 
         // Numbers from 0 (Mon) to 6 (Sun)
         const today = (new Date().getDay() + 6) % 7;
         const tomorrow = (today + 1) % 7;
 
         // Check if we also need to write 'today' or 'tomorrow'
-        if (i === today) writeToS3('today', json);
-        if (i === tomorrow) writeToS3('tomorrow', json);
+        // if (i === today) writeToS3('today', json);
+        // if (i === tomorrow) writeToS3('tomorrow', json);
       });
   });
 };
