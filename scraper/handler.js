@@ -32,10 +32,11 @@ const formatMenu = text =>
   text ? text.replace(/\s\s+/g, ' ').trim().toLowerCase().capitalise() : '';
 
 // Strip HTML tags from a string
-const stripTags = html => (html ? html.replace(/<.*?>/g, ' ') : '');
+const stripTags = html =>
+  html ? html.replace(/<!--(.|\n|\r)*?-->/g, '').replace(/<.*?>/g, ' ') : '';
 
 // Strip HTML entities from a string
-const stripEntities = ($, text) => $('<div>').html(text).text();
+const stripEntities = $ => text => $('<div>').html(text).text();
 
 // Build menu data into a JSON object
 const buildJson = (day, url, menuItems) => ({
@@ -52,11 +53,17 @@ const parseMenu = $ => {
 
   const locations = $(menuHtml).find('h2');
   locations.each((i, loc) => {
-    const menu = $(loc).next('h3');
+    const menuTextNodes = $(loc).nextUntil('h2', 'h3').toArray();
+    const menu = menuTextNodes
+      .map(m => $(m).html())
+      .map(stripTags)
+      .map(stripEntities($))
+      .map(formatMenu)
+      .join('');
 
     const menuObj = {
       location: formatLocation($(loc).text()),
-      menu: formatMenu(stripEntities($, stripTags($(menu).html()))),
+      menu,
     };
 
     menuItems.push(menuObj);
