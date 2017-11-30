@@ -13,47 +13,53 @@ const webhookUrl = process.env.WEBHOOK_URL;
 const coreUrl = process.env.CORE_URL;
 
 /**
- * Entry point
+ * Get today's canteen menu and post to the given URLs
  */
-module.exports.handler = (event, context, callback) => {
+module.exports.handler = webhookUrls => {
   const requestedMenu = 'today';
 
   // Query the core server
   fetch(buildCoreQuery(coreUrl, common.messageTypes.MENU, requestedMenu))
     .then(res => res.json())
     .then(body => {
-      if (body.error) sendErrorResponse(callback, body.error);
-      else if (body.data) sendMenuResponse(callback, requestedMenu, body.data);
-      else throw new Error(
+      if (body.error) sendErrorResponses(webhookUrls, body.error);
+      else if (body.data)
+        sendMenuResponse(webhookUrls, requestedMenu, body.data);
+      else
+        throw new Error(
           'Response from core server did not contain error or data'
         );
     })
     .catch(err =>
-      sendErrorResponse(callback, `Error querying core server: ${err}`));
+      sendErrorResponses(webhookUrls, `Error querying core server: ${err}`)
+    );
 };
 
 // Helper function to return a JSON response to Slack
-const sendSlackResponse = (callback, text = '', attachments = []) => {
+const sendSlackResponses = (webhookUrls, text = '', attachments = []) => {
   const payload = {
     text,
     attachments,
   };
 
   // sendResponse(callback, payload);
-  fetch(webhookUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
-    .then(res => console.log(res))
-    .catch(err => console.log(`Error posting to Slack: ${err}`));
+  const send = webhookUrl =>
+    fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+  Promise.all(webhookUrls.map(send))
+    .then(responses => console.log(responses))
+    .catch(errs => console.log(`Errors posting to Slack: ${errs}`));
 };
 
 // Return an error to Slack
-const sendErrorResponse = (callback, text) => {
-  sendSlackResponse(callback, '*Something went wrong*', [
+const sendErrorResponses = (webhookUrls, text) => {
+  sendSlackResponses(webhookUrls, '*Something went wrong*', [
     {
       fallback: text,
       text,
@@ -63,7 +69,7 @@ const sendErrorResponse = (callback, text) => {
 };
 
 // Build and return a 'menu' response to Slack;
-const sendMenuResponse = (callback, requestedMenu, menuData) => {
+const sendMenuResponse = (webhookUrls, requestedMenu, menuData) => {
   const menuText = menuData.locations
     .map(({ location, menu }) => `*${location}*\n${menu}`)
     .join('\n\n');
@@ -86,5 +92,5 @@ const sendMenuResponse = (callback, requestedMenu, menuData) => {
     },
   ];
 
-  sendSlackResponse(callback, '', attachments);
+  sendSlackResponses(webhookUrls, '', attachments);
 };

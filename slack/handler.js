@@ -5,6 +5,8 @@ require('babel-polyfill');
 const fetch = require('node-fetch');
 const aws = require('aws-sdk');
 
+const notifyHandler = require('./notify').handler;
+
 const common = require('../lib/common');
 const { sendResponse, days, buildCoreQuery } = require('../lib/helpers');
 
@@ -30,17 +32,26 @@ const parseCommand = body => {
 /**
  * Get the record for a given team from the DB
  */
-const getTeamFromDB = (teamId, cb) => {
+const getTeamsFromDB = cb => {
   const dynamoParams = {
-    Key: { id: { S: teamId } },
-    TableName: 'slackmonitor',
+    // Key: { id: { S: teamId } },
+    TableName: 'canteenbot',
   };
 
-  dynamoDB.getItem(dynamoParams, (err, data) => {
+  dynamoDB.scan(dynamoParams, (err, teams) => {
     if (err) {
-      console.log(`Error retrieving data for ${teamId} from DynamoDB`, err);
+      console.log(`Error retrieving teams from DynamoDB`, err);
       cb(err);
-    } else cb(data.Item);
+    } else
+      cb(
+        // Transform items from { key: { S: value } } to { key: value }
+        teams.Items.map(item =>
+          Object.keys(item).reduce(
+            (acc, k) => Object.assign({}, acc, { [k]: item[k].S }),
+            {}
+          )
+        )
+      );
   });
 };
 
@@ -70,16 +81,14 @@ const storeTeamInDB = (teamId, teamName, accessToken, webhookUrl, cb) => {
  * Entry point
  */
 module.exports.handler = (event, context, callback) => {
-  // console.log(`event`, event);
-  // console.log(`context`, context);
+  // Handle scheduled notifications via cron
+  if (event.notify) {
+    getTeamsFromDB(teams => notifyHandler(teams.map(t => t.webhookUrl)));
+    return;
+  }
 
-  // if (event.notify) {
-  //   notifyHandler(event, context, callback);
-  //   return;
-  // }
-
+  // Otherwise handle HTTP requests
   const { httpMethod } = event;
-
   console.log(`Received request via ${httpMethod}`);
 
   switch (httpMethod) {
@@ -139,6 +148,9 @@ const oAuthHandler = (event, context, callback) => {
     });
 };
 
+/**
+ * Handle /canteen slash commands
+ */
 const canteenCommandHandler = (event, context, callback) => {
   // Parse arguments
   const { token, command, text } = parseCommand(event.body);
