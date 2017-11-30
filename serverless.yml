@@ -15,6 +15,9 @@ provider:
   ## Service-wide environment variables
   environment:
     CORE_URL: ${file(env.yml):CORE_URL}
+    CLIENT_ID: ${file(env.yml):CLIENT_ID}
+    CLIENT_SECRET: ${file(env.yml):CLIENT_SECRET}
+    REDIRECT_URI: ${file(env.yml):REDIRECT_URI}
 
 ## Individual parts of the service
 functions:
@@ -33,18 +36,16 @@ functions:
     handler: dist/slack.handler
     events:
       - http:
+          method: get
           path: /slack
+      - http:
           method: post
-    environment:
-      TIMES_TEAM: ${file(env.yml):TIMES_TEAM}
-
-  ## Post to Slack on a schedule
-  slack-notifier:
-    handler: dist/slack-notifier.handler
-    events:
-      - schedule: cron(0 12 * * ? *)
-    environment:
-      WEBHOOK_URL: ${file(env.yml):WEBHOOK_URL}
+          path: /slack
+      ## Post to Slack on a schedule
+      - schedule:
+          rate: cron(0 12 * * ? *)
+          input:
+            notify: true
 
   ## Alexa skill
   alexa:

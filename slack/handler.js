@@ -3,10 +3,19 @@
 require('babel-polyfill');
 
 const fetch = require('node-fetch');
+const aws = require('aws-sdk');
+
 const common = require('../lib/common');
 const { sendResponse, days, buildCoreQuery } = require('../lib/helpers');
 
+// Environment variables
 const coreUrl = process.env.CORE_URL;
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const redirectUri = process.env.REDIRECT_URI;
+
+// Instantiate DB connection
+const dynamoDB = new aws.DynamoDB();
 
 // Helper
 const parseCommand = body => {
@@ -19,19 +28,118 @@ const parseCommand = body => {
 };
 
 /**
+ * Get the record for a given team from the DB
+ */
+const getTeamFromDB = (teamId, cb) => {
+  const dynamoParams = {
+    Key: { id: { S: teamId } },
+    TableName: 'slackmonitor',
+  };
+
+  dynamoDB.getItem(dynamoParams, (err, data) => {
+    if (err) {
+      console.log(`Error retrieving data for ${teamId} from DynamoDB`, err);
+      cb(err);
+    } else cb(data.Item);
+  });
+};
+
+/**
+ * Store a record for a given team in the DB
+ */
+const storeTeamInDB = (teamId, teamName, accessToken, webhookUrl, cb) => {
+  const dynamoParams = {
+    Item: {
+      id: { S: teamId },
+      teamName: { S: teamName },
+      accessToken: { S: accessToken },
+      webhookUrl: { S: webhookUrl },
+    },
+    TableName: 'canteenbot',
+  };
+
+  dynamoDB.putItem(dynamoParams, (err, data) => {
+    if (err) {
+      console.log(`Error storing data for ${teamName} in DynamoDB`, err);
+      cb(err);
+    } else cb(data);
+  });
+};
+
+/**
  * Entry point
  */
 module.exports.handler = (event, context, callback) => {
-  // Check the request was recieved via a supported method
-  if (event.httpMethod !== 'POST') {
+  // console.log(`event`, event);
+  // console.log(`context`, context);
+
+  // if (event.notify) {
+  //   notifyHandler(event, context, callback);
+  //   return;
+  // }
+
+  const { httpMethod } = event;
+
+  console.log(`Received request via ${httpMethod}`);
+
+  switch (httpMethod) {
+    case 'GET':
+      oAuthHandler(event, context, callback);
+      return;
+    case 'POST':
+      canteenCommandHandler(event, context, callback);
+      return;
+    default:
+      sendErrorResponse(callback, 'Invalid HTTP method "${httpMethod}"', 405);
+      return;
+  }
+};
+
+/**
+ * Handle the Slack OAuth process
+ */
+const oAuthHandler = (event, context, callback) => {
+  // Attempt to extract the temporary code sent by Slack
+  let code;
+  try {
+    code = event.queryStringParameters.code;
+  } catch (e) {
+    console.log(`Error retrieving code from ${event.queryStringParameters}`);
     sendErrorResponse(
       callback,
-      'Invalid HTTP method. Method should be POST.',
-      405
+      `Couldn't retrieve code from ${event.queryStringParameters}`
     );
     return;
   }
 
+  // Construct a URL to complete the process
+  const url = `https://slack.com/api/oauth.access?client_id=${
+    clientId
+  }&client_secret=${clientSecret}&code=${code}&redirect_uri=${redirectUri}`;
+
+  // Make a request to the URL
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.ok) {
+        console.log(`Error during OAuth:`, data);
+        respond({ error: `Could not complete OAuth process` });
+      } else {
+        console.log('OAuth completed successfully');
+        storeTeamInDB(
+          data.team_id,
+          data.team_name,
+          data.access_token,
+          data.incoming_webhook.url,
+          res => {
+            sendResponse(callback, 'OAuth completed successfully');
+          }
+        );
+      }
+    });
+};
+
+const canteenCommandHandler = (event, context, callback) => {
   // Parse arguments
   const { token, command, text } = parseCommand(event.body);
 
@@ -48,10 +156,6 @@ module.exports.handler = (event, context, callback) => {
     return;
   }
 
-  canteenHandler(callback, command, text);
-};
-
-const canteenHandler = (callback, command, text) => {
   // Valid parameters that can be passed via Slack
   const recognisedParams = ['', ...common.menuTypes, 'ingredient', 'help'];
 
@@ -99,7 +203,8 @@ const canteenHandler = (callback, command, text) => {
             );
         })
         .catch(err =>
-          sendErrorResponse(callback, `Error querying core server: ${err}`));
+          sendErrorResponse(callback, `Error querying core server: ${err}`)
+        );
       break;
 
     // Otherwise it must be a menu request
@@ -120,7 +225,8 @@ const canteenHandler = (callback, command, text) => {
             );
         })
         .catch(err =>
-          sendErrorResponse(callback, `Error querying core server: ${err}`));
+          sendErrorResponse(callback, `Error querying core server: ${err}`)
+        );
       break;
   }
 };
@@ -148,7 +254,8 @@ const sendErrorResponse = (callback, text) => {
 
 // Build and return a 'help' response to Slack
 const sendHelpResponse = (callback, recognisedParams) => {
-  const helpText = '*Hungry? Type* `/canteen` *, optionally followed by one of these commands, to see what’s on offer:*';
+  const helpText =
+    '*Hungry? Type* `/canteen` *, optionally followed by one of these commands, to see what’s on offer:*';
   const paramsText = recognisedParams.reduce((str, p) => `${str}\n${p}`);
 
   sendSlackResponse(callback, helpText + paramsText);
@@ -160,18 +267,19 @@ const sendIngredientResponse = (callback, ingredient, daysWithIngredient) => {
 
   // If we didn't find the ingredient
   if (daysWithIngredient.length === 0) {
-    responseText = `Sorry, I couldn’t find "${ingredient}" in the menu this week`;
+    responseText = `Sorry, I couldn’t find "${
+      ingredient
+    }" in the menu this week`;
   } else {
     // If we did find it
-    const daysText = daysWithIngredient.reduce(
-      (str, d, i, arr) => {
-        if (i === 0) return d;
-        if (i === arr.length - 1) return `${str} and ${d}`;
-        return `${str}, ${d}`;
-      },
-      ''
-    );
-    responseText = `Looks like the canteen are serving ${ingredient} on ${daysText} this week`;
+    const daysText = daysWithIngredient.reduce((str, d, i, arr) => {
+      if (i === 0) return d;
+      if (i === arr.length - 1) return `${str} and ${d}`;
+      return `${str}, ${d}`;
+    }, '');
+    responseText = `Looks like the canteen are serving ${ingredient} on ${
+      daysText
+    } this week`;
   }
 
   sendSlackResponse(callback, responseText);
