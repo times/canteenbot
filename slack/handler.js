@@ -151,11 +151,6 @@ const canteenCommandHandler = (event, context, callback) => {
     return;
   }
 
-  if (token !== process.env.TIMES_TEAM) {
-    sendErrorResponse(callback, 401, `Invalid token.`);
-    return;
-  }
-
   // Valid parameters that can be passed via Slack
   const recognisedParams = ['', ...common.menuTypes, 'ingredient', 'help'];
 
