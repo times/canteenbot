@@ -42,7 +42,7 @@ functions:
   slack-notifier:
     handler: dist/slack-notifier.handler
     events:
-      - schedule: cron(15 11 * * ? *)
+      - schedule: cron(0 12 * * ? *)
     environment:
       WEBHOOK_URL: ${file(env.yml):WEBHOOK_URL}
 
