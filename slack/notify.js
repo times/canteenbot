@@ -1,13 +1,7 @@
-'use strict';
-
-require('babel-polyfill');
-
 const fetch = require('node-fetch');
 const common = require('../lib/common');
-const { buildCoreQuery } = require('../lib/helpers');
 
-// The webhook to post to
-const webhookUrl = process.env.WEBHOOK_URL;
+const { buildCoreQuery } = require('../lib/helpers');
 
 // Today's menu data
 const coreUrl = process.env.CORE_URL;
@@ -15,7 +9,7 @@ const coreUrl = process.env.CORE_URL;
 /**
  * Get today's canteen menu and post to the given URLs
  */
-module.exports.handler = webhookUrls => {
+module.exports = webhookUrls => {
   const requestedMenu = 'today';
 
   // Query the core server
