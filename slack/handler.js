@@ -1,12 +1,10 @@
-'use strict';
-
 require('babel-polyfill');
 
 const notifyHandler = require('./notify');
 const oAuthHandler = require('./oauth');
 const commandHandler = require('./command');
 
-const { getTeamsFromDB, sendErrorResponse } = require('./helpers');
+const { getTeamsFromDB, respondWithError } = require('./helpers');
 
 /**
  * Entry point
@@ -14,8 +12,9 @@ const { getTeamsFromDB, sendErrorResponse } = require('./helpers');
 module.exports.handler = (event, context, callback) => {
   // Handle scheduled notifications via cron
   if (event.notify) {
-    getTeamsFromDB(teams => notifyHandler(teams.map(t => t.webhookUrl)));
-    return;
+    return getTeamsFromDB()
+      .then(teams => notifyHandler(teams.map(t => t.webhookUrl)))
+      .catch(err => respondWithError(callback, err));
   }
 
   // Otherwise handle HTTP requests
@@ -24,13 +23,10 @@ module.exports.handler = (event, context, callback) => {
 
   switch (httpMethod) {
     case 'GET':
-      oAuthHandler(event, context, callback);
-      return;
+      return oAuthHandler(callback, event);
     case 'POST':
-      commandHandler(event, context, callback);
-      return;
+      return commandHandler(callback, event);
     default:
-      sendErrorResponse(callback, 'Invalid HTTP method "${httpMethod}"', 405);
-      return;
+      return respondWithError(callback, 'Invalid HTTP method "${httpMethod}"');
   }
 };
