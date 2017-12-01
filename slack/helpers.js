@@ -61,7 +61,7 @@ module.exports.storeTeamInDB = (teamId, teamName, accessToken, webhookUrl) =>
   });
 
 // Helper function to return a JSON response to Slack
-module.exports.respond = (
+const respond = (module.exports.respond = (
   callback,
   text = '',
   attachments = [],
@@ -73,7 +73,7 @@ module.exports.respond = (
   };
 
   return sendResponse(callback, payload, statusCode);
-};
+});
 
 // Return an error to Slack
 module.exports.respondWithError = (callback, text) =>
