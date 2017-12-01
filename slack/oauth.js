@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 const { storeTeamInDB, respond, respondWithError } = require('./helpers');
 
 // Environment variables

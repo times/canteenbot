@@ -42,7 +42,7 @@ module.exports = (callback, event) => {
 
     // For ingredient requests, return a list of days where that ingredient is on the menu
     case 'ingredient':
-      const requestedIngredient = params[1];
+      const ingredient = params[1];
 
       // Check the user passed an ingredient to check
       if (!ingredient)
@@ -105,7 +105,7 @@ const respondWithIngredient = (callback, ingredient, daysWithIngredient) => {
     }, '');
 
     responseText = `Looks like the canteen are serving ${ingredient} on ${
-      daysTextd
+      daysText
     } this week`;
   }
 
