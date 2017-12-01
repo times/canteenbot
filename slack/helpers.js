@@ -11,27 +11,28 @@ const coreUrl = process.env.CORE_URL;
 /**
  * Get the record for a given team from the DB
  */
-module.exports.getTeamsFromDB = new Promise((resolve, reject) => {
-  const dynamoParams = { TableName: 'canteenbot' };
+module.exports.getTeamsFromDB = () =>
+  new Promise((resolve, reject) => {
+    const dynamoParams = { TableName: 'canteenbot' };
 
-  dynamoDB.scan(dynamoParams, (err, rows) => {
-    if (err) {
-      const errMsg = `Error retrieving teams from DynamoDB: ${err}`;
-      console.log(errMsg);
-      return reject(errMsg);
-    } else {
-      // Transform items from { key: { S: value } } to { key: value }
-      const teams = rows.Items.map(item =>
-        Object.keys(item).reduce(
-          (acc, k) => Object.assign({}, acc, { [k]: item[k].S }),
-          {}
-        )
-      );
+    dynamoDB.scan(dynamoParams, (err, rows) => {
+      if (err) {
+        const errMsg = `Error retrieving teams from DynamoDB: ${err}`;
+        console.log(errMsg);
+        return reject(errMsg);
+      } else {
+        // Transform items from { key: { S: value } } to { key: value }
+        const teams = rows.Items.map(item =>
+          Object.keys(item).reduce(
+            (acc, k) => Object.assign({}, acc, { [k]: item[k].S }),
+            {}
+          )
+        );
 
-      return resolve(teams);
-    }
+        return resolve(teams);
+      }
+    });
   });
-});
 
 /**
  * Store a record for a given team in the DB

@@ -1,5 +1,6 @@
 CORE_URL: https://123456abcdef.execute-api.eu-west-1.amazonaws.com/prod/core
-WEBHOOK_URL: https://hooks.slack.com/services/T0123456/B0123456/abcdefghijkl
-TIMES_TEAM: sSDjFL56Sd364g56
+CLIENT_ID: "123456.123456"
+CLIENT_SECRET: abcdefghijkl
+REDIRECT_URI: https://ab.cd.efg
 profile: profile_name
 stage: dev

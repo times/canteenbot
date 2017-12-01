@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const { buildMenuAttachments } = require('./helpers');
+const { buildMenuAttachments, fetchMenu } = require('./helpers');
 
 /**
  * Get today's canteen menu and post to the given URLs
@@ -8,7 +8,7 @@ const { buildMenuAttachments } = require('./helpers');
 module.exports = webhookUrls => {
   const requestedMenu = 'today';
 
-  fetchMenu(requestedMenu)
+  return fetchMenu(requestedMenu)
     .then(menu => sendMenus(webhookUrls, requestedMenu, menu))
     .catch(err =>
       sendErrors(webhookUrls, `Error querying core server: ${err}`)

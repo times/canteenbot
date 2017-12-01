@@ -12,6 +12,7 @@ const { getTeamsFromDB, respondWithError } = require('./helpers');
 module.exports.handler = (event, context, callback) => {
   // Handle scheduled notifications via cron
   if (event.notify) {
+    console.log(`Received request via cron`);
     return getTeamsFromDB()
       .then(teams => notifyHandler(teams.map(t => t.webhookUrl)))
       .catch(err => respondWithError(callback, err));
