@@ -2,7 +2,6 @@ module.exports = {
   entry: {
     core: './core/handler.js',
     slack: './slack/handler.js',
-    'slack-notifier': './slack-notifier/handler.js',
     alexa: './alexa/handler.js',
     scraper: './scraper/handler.js',
   },
