@@ -1,9 +1,9 @@
 module.exports = {
   entry: {
-    core: './core/handler.js',
-    slack: './slack/handler.js',
     alexa: './alexa/handler.js',
+    core: './core/handler.js',
     scraper: './scraper/handler.js',
+    slack: './slack/handler.js',
   },
   output: {
     path: './dist',
