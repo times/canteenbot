@@ -1,24 +1,19 @@
 {
   "name": "canteenbot",
-  "version": "2.0.0",
-  "description": "Serverless functions to fetch the menu for The News Building’s canteen",
+  "version": "2.2.0",
+  "description":
+    "Serverless functions to fetch the menu for The News Building’s canteen",
   "files": [
+    "alexa/handler.js",
     "core/handler.js",
-    "slack/handler.js",
-    "slack-notifier/handler.js"
+    "scraper/handler.js",
+    "slack/handler.js"
   ],
   "scripts": {
     "start": "webpack --watch",
     "build": "webpack"
   },
-  "keywords": [
-    "alexa",
-    "skill",
-    "slack",
-    "webhook",
-    "canteen",
-    "menu"
-  ],
+  "keywords": ["alexa", "skill", "slack", "webhook", "canteen", "menu"],
   "author": "Elliot Davies",
   "license": "MIT",
   "dependencies": {
