@@ -1,10 +1,10 @@
 'use strict';
 
 require('babel-polyfill');
+require('isomorphic-fetch');
 
-const fetch = require('node-fetch');
 const common = require('../lib/common');
-const { sendResponse, days } = require('../lib/helpers');
+const { sendResponse } = require('../lib/helpers');
 
 // Where to find the menus
 const menuUrl = process.env.DATA_URL;
@@ -15,13 +15,12 @@ const buildMenuUrl = day => `${menuUrl}${day}.json`;
 // Send data back
 const sendData = (callback, data) => {
   sendResponse(callback, { data });
-}
+};
 
 // Send an error back. Default to 400 (Bad Request)
 const sendError = (callback, error, statusCode = 400) => {
   sendResponse(callback, { error }, statusCode);
-}
-
+};
 
 /*
  * Handle menu requests - returns menu data for the given day
@@ -34,25 +33,23 @@ const menuHandler = (callback, menu) => {
   }
 
   // Fetch the JSON for that menu
-  fetch(buildMenuUrl(menu))
+  return fetch(buildMenuUrl(menu))
     .then(res => res.json())
     .then(body => sendData(callback, body))
     .catch(err => sendData(callback, `Couldn't read menu file for "${menu}"`));
 };
-
 
 /*
  * Handle ingredient requests - returns a list of days on which a given ingredient is available
  */
 const ingredientHandler = (callback, ingredient) => {
   // Fetch the JSON for each of the menus
-  const promises =
-    days
-      .map(buildMenuUrl)
-      .map(url => fetch(url).then(res => res.json()));
+  const promises = common.days
+    .map(buildMenuUrl)
+    .map(url => fetch(url).then(res => res.json()));
 
   // Return only the days containing that ingredient
-  Promise.all(promises)
+  return Promise.all(promises)
     .then(getDaysWithIngredient(ingredient))
     .then(days => sendData(callback, days))
     .catch(err => sendError(callback, err));
@@ -65,17 +62,19 @@ const getDaysWithIngredient = ingredient => menus =>
     .map(menu => menu.day);
 
 // Check whether a given ingredient exists within a given menu
-const hasIngredient = ingredient => ({menu, location}) => {
+const hasIngredient = ingredient => ({ menu, location }) => {
   const ingredientLC = ingredient.toLowerCase();
-  return menu.toLowerCase().includes(ingredientLC) || location.toLowerCase().includes(ingredientLC);
-};
 
+  return (
+    menu.toLowerCase().includes(ingredientLC) ||
+    location.toLowerCase().includes(ingredientLC)
+  );
+};
 
 /**
  * Entry point
  */
 module.exports.handler = (event, context, callback) => {
-
   // Parse arguments
   const { httpMethod, queryStringParameters: args } = event;
 
@@ -93,7 +92,10 @@ module.exports.handler = (event, context, callback) => {
 
   // Check we got the correct parameters
   if (!args.message_type || !args.message_param) {
-    sendError(callback, 'Both message_type and message_param must be provided.');
+    sendError(
+      callback,
+      'Both message_type and message_param must be provided.'
+    );
     return;
   }
 
@@ -102,13 +104,11 @@ module.exports.handler = (event, context, callback) => {
 
   switch (args.message_type) {
     case MENU:
-      menuHandler(callback, args.message_param);
-      break;
+      return menuHandler(callback, args.message_param);
     case INGREDIENT:
-      ingredientHandler(callback, args.message_param);
-      break;
+      return ingredientHandler(callback, args.message_param);
     default:
       sendError(callback, `Invalid message_type ${args.message_type}.`);
       break;
-  };
+  }
 };
