@@ -1,19 +1,13 @@
-'use strict';
-
-require('babel-polyfill');
-
-const fetch = require('node-fetch');
+require('isomorphic-fetch');
 const common = require('../lib/common');
 const { buildCoreQuery } = require('../lib/helpers');
 
 const coreUrl = process.env.CORE_URL;
 
-
 /**
  * Entry point
  */
 module.exports.handler = (event, context, callback) => {
-
   const { request } = event;
 
   console.log(JSON.stringify(request));
@@ -21,7 +15,8 @@ module.exports.handler = (event, context, callback) => {
   // Check request came from our app
   // event.session.application.applicationId === env.applicationId
 
-  const intent = (request.type === 'LaunchRequest') ? 'Launch' : request.intent.name;
+  const intent =
+    request.type === 'LaunchRequest' ? 'Launch' : request.intent.name;
 
   switch (intent) {
     // When the skill is opened without a command
@@ -50,7 +45,10 @@ module.exports.handler = (event, context, callback) => {
       const requestedMenu = slotMenuType.replace(`'s`, '').toLowerCase();
 
       if (!common.menuTypes.includes(requestedMenu)) {
-        sendErrorResponse(callback, `I didn't recognise the menu type "${requestedMenu}"`);
+        sendErrorResponse(
+          callback,
+          `I didn't recognise the menu type "${requestedMenu}"`
+        );
         return;
       }
 
@@ -59,26 +57,34 @@ module.exports.handler = (event, context, callback) => {
         .then(res => res.json())
         .then(body => {
           if (body.error) sendErrorResponse(callback, body.error);
-          else if (body.data) sendMenuResponse(callback, requestedMenu, body.data);
-          else throw new Error('Response from core server did not contain error or data');
+          else if (body.data)
+            sendMenuResponse(callback, requestedMenu, body.data);
+          else
+            throw new Error(
+              'Response from core server did not contain error or data'
+            );
         })
-        .catch(err => sendErrorResponse(callback, `Sorry, there was a problem retrieving the menu.`));
+        .catch(err =>
+          sendErrorResponse(
+            callback,
+            `Sorry, there was a problem retrieving the menu.`
+          )
+        );
       break;
   }
 };
 
-
 // Launching is the same as asking for help, for now
 const sendLaunchResponse = callback => sendHelpResponse(callback);
 
-
 // Return a menu
 const sendMenuResponse = (callback, requestedMenu, menuData) => {
-
   // Create speech output
   const speechStarter = `Here's the menu for ${requestedMenu}:`;
   const speechOutput = menuData.locations.reduce((str, opt) => {
-    return str + ` For the ${opt.location} option, there is ${opt.menu.trim()}.`
+    return (
+      str + ` For the ${opt.location} option, there is ${opt.menu.trim()}.`
+    );
   }, speechStarter);
 
   // SSML doesn't seem to like ampersands
@@ -93,63 +99,62 @@ const sendMenuResponse = (callback, requestedMenu, menuData) => {
 
   sendResponse(callback, speechOutputSSML, {
     title: `${day}'s menu`,
-    content: cardContent
+    content: cardContent,
   });
 };
 
-
 // Explain available commands
-const sendHelpResponse = (callback) => {
+const sendHelpResponse = callback => {
   const speechOutput = `Try asking for the menu for a particular day, or say "stop" to quit. Now, what can I do for you?`;
 
-  const cardContent =
-  `Hungry? Here are some examples of things you can say:
+  const cardContent = `Hungry? Here are some examples of things you can say:
   • "Give me the menu for today"
   • "Give me Sunday's menu"
   `;
 
-  sendResponse(callback, speechOutput, {
-    title: 'CanteenBot help',
-    content: cardContent
-  }, false);
+  sendResponse(
+    callback,
+    speechOutput,
+    {
+      title: 'CanteenBot help',
+      content: cardContent,
+    },
+    false
+  );
 };
-
 
 // Stop / cancel
-const sendStopResponse = (callback) => {
+const sendStopResponse = callback => {
   sendResponse(callback, 'Goodbye!', {
     title: 'Goodbye!',
-    content: 'Goodbye!'
+    content: 'Goodbye!',
   });
 };
-
 
 // Send a response when an error occurred
 const sendErrorResponse = (callback, text) => {
   const speechOutput = `Uh oh, I encountered an error: ${text}`;
   sendResponse(callback, speechOutput, {
     title: 'Uh oh',
-    content: text
+    content: text,
   });
 };
 
-
 // Send a response to Alexa
 const sendResponse = (callback, speech, card, shouldEnd = true) => {
-
   callback(null, {
     version: '1.0',
     response: {
       outputSpeech: {
         type: 'PlainText',
-        text: speech
+        text: speech,
       },
       card: {
         type: 'Simple',
         title: card.title,
-        content: card.content
+        content: card.content,
       },
-      shouldEndSession: shouldEnd
-    }
+      shouldEndSession: shouldEnd,
+    },
   });
 };

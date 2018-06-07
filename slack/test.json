@@ -46,6 +46,7 @@
     "httpMethod": "POST",
     "apiId": "8049upo37k"
   },
-  "body": "token=uK8HKof9vicacg1yD5hiKori&team_id=T024GTVBS&team_domain=times&channel_id=C024HCKHQ&channel_name=bot-testing&user_id=U0748HY12&user_name=elliot&command=%2Fcanteen-t1000&text=&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT024GTVBS%2F134444174002%2Fh7gZd41Ncfplu8wfN0S8bzT5",
+  "body":
+    "token=uK8HKof9vicacg1yD5hiKori&team_id=T024GTVBS&team_domain=times&channel_id=C024HCKHQ&channel_name=bot-testing&user_id=U0748HY12&user_name=elliot&command=%2Fcanteen-t1000&text=&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT024GTVBS%2F134444174002%2Fh7gZd41Ncfplu8wfN0S8bzT5",
   "isBase64Encoded": false
 }

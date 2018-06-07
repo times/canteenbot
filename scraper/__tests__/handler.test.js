@@ -1,12 +1,17 @@
 const mockPutObject = jest.fn((data, callback) => {
   callback();
 });
+
 class mockS3 {
-  putObject = mockPutObject;
+  putObject(...args) {
+    return mockPutObject(...args);
+  }
 }
+
 jest.mock('aws-sdk', () => ({
   S3: mockS3,
 }));
+
 const MockDate = require('mockdate');
 const { handler } = require('../handler');
 

@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+require('isomorphic-fetch');
 
 const { storeTeamInDB, respond, respondWithError } = require('./helpers');
 
@@ -24,9 +24,7 @@ module.exports = (callback, event) => {
   }
 
   // Construct a URL to complete the process
-  const url = `https://slack.com/api/oauth.access?client_id=${
-    clientId
-  }&client_secret=${clientSecret}&code=${code}&redirect_uri=${redirectUri}`;
+  const url = `https://slack.com/api/oauth.access?client_id=${clientId}&client_secret=${clientSecret}&code=${code}&redirect_uri=${redirectUri}`;
 
   return fetch(url)
     .then(res => res.json())

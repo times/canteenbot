@@ -7,7 +7,7 @@ service: canteenbot
 ## AWS details
 provider:
   name: aws
-  runtime: nodejs4.3
+  runtime: nodejs8.10
   region: eu-west-1
   profile: ${file(env.yml):profile}
   stage: ${file(env.yml):stage}
@@ -23,7 +23,7 @@ provider:
 functions:
   ## CanteenBot's core
   core:
-    handler: dist/core.handler
+    handler: core/handler.handler
     events:
       - http:
           path: /core
@@ -33,7 +33,7 @@ functions:
 
   ## Slash-command listener
   slack:
-    handler: dist/slack.handler
+    handler: slack/handler.handler
     events:
       - http:
           method: get
@@ -49,13 +49,13 @@ functions:
 
   ## Alexa skill
   alexa:
-    handler: dist/alexa.handler
+    handler: alexa/handler.handler
     events:
       - alexaSkill
 
   ## Menu scraper
   scraper:
-    handler: dist/scraper.handler
+    handler: scraper/handler.handler
     events:
       - schedule: cron(0 * * * ? *)
 
@@ -63,7 +63,6 @@ functions:
 package:
   # individually: true
   exclude:
-    - node_modules/**
     - assets/**
     - data/**
     - package.json

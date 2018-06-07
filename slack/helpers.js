@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+require('isomorphic-fetch');
 const aws = require('aws-sdk');
 
 const { sendResponse, buildCoreQuery } = require('../lib/helpers');

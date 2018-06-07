@@ -1,6 +1,3 @@
-'use strict';
-
-require('babel-polyfill');
 require('isomorphic-fetch');
 
 const cheerio = require('cheerio');

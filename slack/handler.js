@@ -1,5 +1,3 @@
-require('babel-polyfill');
-
 const notifyHandler = require('./notify');
 const oAuthHandler = require('./oauth');
 const commandHandler = require('./command');

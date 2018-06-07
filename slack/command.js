@@ -94,9 +94,7 @@ const respondWithIngredient = (callback, ingredient, daysWithIngredient) => {
 
   // If we didn't find the ingredient
   if (daysWithIngredient.length === 0) {
-    responseText = `Sorry, I couldn’t find "${
-      ingredient
-    }" in the menu this week`;
+    responseText = `Sorry, I couldn’t find "${ingredient}" in the menu this week`;
   } else {
     const daysText = daysWithIngredient.reduce((str, d, i, arr) => {
       if (i === 0) return d;
@@ -104,9 +102,7 @@ const respondWithIngredient = (callback, ingredient, daysWithIngredient) => {
       return `${str}, ${d}`;
     }, '');
 
-    responseText = `Looks like the canteen are serving ${ingredient} on ${
-      daysText
-    } this week`;
+    responseText = `Looks like the canteen are serving ${ingredient} on ${daysText} this week`;
   }
 
   return respond(callback, responseText);

@@ -1,7 +1,8 @@
 {
   "name": "canteenbot",
   "version": "2.2.0",
-  "description": "Serverless functions to fetch the menu for The News Building’s canteen",
+  "description":
+    "Serverless functions to fetch the menu for The News Building’s canteen",
   "files": [
     "alexa/handler.js",
     "core/handler.js",
@@ -9,44 +10,24 @@
     "slack/handler.js"
   ],
   "scripts": {
-    "start": "webpack --watch",
-    "build": "webpack",
     "test": "DATA_URL=https://www.example.com/ jest --coverage"
   },
-  "keywords": [
-    "alexa",
-    "skill",
-    "slack",
-    "webhook",
-    "canteen",
-    "menu"
-  ],
+  "keywords": ["alexa", "skill", "slack", "webhook", "canteen", "menu"],
   "author": "Elliot Davies",
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.36.0",
     "cheerio": "^0.22.0",
-    "isomorphic-fetch": "^2.2.1",
-    "node-fetch": "^1.6.3"
+    "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-core": "^6.22.1",
-    "babel-jest": "^22.4.3",
-    "babel-loader": "^6.2.10",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-polyfill": "^6.22.0",
-    "babel-preset-env": "^1.6.1",
     "jest": "^22.4.3",
     "jest-fetch-mock": "^1.5.0",
-    "mockdate": "^2.0.2",
-    "webpack": "^2.2.0"
+    "mockdate": "^2.0.2"
   },
   "jest": {
     "automock": false,
-    "setupFiles": [
-      "./setupTests.js"
-    ],
+    "setupFiles": ["./setupTests.js"],
     "collectCoverageFrom": [
       "alexa/**/*.js",
       "core/**/*.js",
@@ -59,7 +40,7 @@
       "global": {
         "branches": 23,
         "functions": 40,
-        "lines": 37,
+        "lines": 35.6,
         "statements": 35
       }
     }

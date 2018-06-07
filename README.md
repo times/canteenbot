@@ -16,8 +16,8 @@ accordingly.
 
 Valid message types are:
 
-* `MENU` for requesting a given day’s menu
-* `INGREDIENT` for requesting a list of days on which a given ingredient is
+- `MENU` for requesting a given day’s menu
+- `INGREDIENT` for requesting a list of days on which a given ingredient is
   being served
 
 ### Menus
@@ -52,10 +52,10 @@ The response will be JSON in the following format:
 
 It contains the following fields:
 
-* `url`: the relevant page of the canteen’s website
-* `timestamp`: the timestamp at which the menu was scraped
-* `day`: the day of the week the menu is for
-* `locations`: an array of `menu` and `location`, which represent the different
+- `url`: the relevant page of the canteen’s website
+- `timestamp`: the timestamp at which the menu was scraped
+- `day`: the day of the week the menu is for
+- `locations`: an array of `menu` and `location`, which represent the different
   options available in the canteen that day
 
 ### Ingredients
@@ -122,8 +122,7 @@ All commands must begin with `/canteen`.
 Valid menu commands are:
 
 `/canteen today` | `/canteen tomorrow` | `/canteen monday` | `/canteen tuesday`
-| `/canteen wednesday` | `/canteen thursday` | `/canteen friday` | `/canteen
-saturday` | `/canteen sunday`
+| `/canteen wednesday` | `/canteen thursday` | `/canteen friday` | `/canteen saturday` | `/canteen sunday`
 
 Running `/canteen` alone will default to `/canteen today`.
 
@@ -148,9 +147,9 @@ on the skill store.
 The name of the skill is TNB Canteen and you can invoke it with `news canteen`.
 For example:
 
-* "Alexa, open news canteen"
-* "Alexa, ask news canteen what's for lunch today"
-* "Alexa, ask news canteen what's on the menu tomorrow"
+- "Alexa, open news canteen"
+- "Alexa, ask news canteen what's for lunch today"
+- "Alexa, ask news canteen what's on the menu tomorrow"
 
 The Alexa skill does not currently support ingredient queries.
 
@@ -163,13 +162,9 @@ version control. A sample version of this file is included as `env-sample.yml`.
 
 # Development
 
-While working:
+Testing:
 
-    npm start
-
-Build for production:
-
-    npm run build
+    yarn test
 
 Deployment:
 
