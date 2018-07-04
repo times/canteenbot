@@ -1,0 +1,21 @@
+service: canteenbot-core
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-1
+  profile: ${file(.env.yml):profile}
+  stage: ${file(.env.yml):stage}
+
+functions:
+  core:
+    handler: src/index.handler
+    events:
+      - http:
+          path: /core
+          method: get
+    environment:
+      DATA_URL: https://canteenbot-data.s3-eu-west-2.amazonaws.com/
+
+plugins:
+  - serverless-plugin-optimize

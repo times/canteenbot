@@ -1,0 +1,12 @@
+{
+  "name": "canteenbot-core",
+  "version": "2.3.0",
+  "description": "CanteenBot core",
+  "main": "index.js",
+  "author": "Elliot Davies",
+  "license": "MIT",
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {}
+}

@@ -1,5 +1,5 @@
 jest.mock('../../lib/helpers');
-const { handler } = require('../handler');
+const { handler } = require('../src');
 const helpers = require('../../lib/helpers');
 const { messageTypes, menuTypes } = require('../../lib/common');
 

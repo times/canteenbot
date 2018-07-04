@@ -1,12 +1,10 @@
 require('isomorphic-fetch');
 
-const common = require('../lib/common');
-const { sendResponse } = require('../lib/helpers');
+const { menuTypes, days } = require('../../lib/common');
+const { sendResponse } = require('../../lib/helpers');
 
-// Where to find the menus
 const menuUrl = process.env.DATA_URL;
 
-// Helpers
 const buildMenuUrl = day => `${menuUrl}${day}.json`;
 
 // Send data back
@@ -24,7 +22,7 @@ const sendError = (callback, error, statusCode = 400) => {
  */
 const menuHandler = (callback, menu) => {
   // Validate the requested menu
-  if (!common.menuTypes.includes(menu)) {
+  if (!menuTypes.includes(menu)) {
     sendError(callback, `Invalid menu type ${menu}.`);
     return;
   }
@@ -41,7 +39,7 @@ const menuHandler = (callback, menu) => {
  */
 const ingredientHandler = (callback, ingredient) => {
   // Fetch the JSON for each of the menus
-  const promises = common.days
+  const promises = days
     .map(buildMenuUrl)
     .map(url => fetch(url).then(res => res.json()));
 
@@ -96,13 +94,10 @@ module.exports.handler = (event, context, callback) => {
     return;
   }
 
-  // Valid values for message_type
-  const { MENU, INGREDIENT } = common.messageTypes;
-
   switch (args.message_type) {
-    case MENU:
+    case 'MENU':
       return menuHandler(callback, args.message_param);
-    case INGREDIENT:
+    case 'INGREDIENT':
       return ingredientHandler(callback, args.message_param);
     default:
       sendError(callback, `Invalid message_type ${args.message_type}.`);

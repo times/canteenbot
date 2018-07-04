@@ -1,8 +1,7 @@
 {
   "name": "canteenbot",
   "version": "2.2.0",
-  "description":
-    "Serverless functions to fetch the menu for The News Building’s canteen",
+  "description": "Serverless functions to fetch the menu for The News Building’s canteen",
   "files": [
     "alexa/handler.js",
     "core/handler.js",
@@ -12,7 +11,14 @@
   "scripts": {
     "test": "DATA_URL=https://www.example.com/ jest --coverage"
   },
-  "keywords": ["alexa", "skill", "slack", "webhook", "canteen", "menu"],
+  "keywords": [
+    "alexa",
+    "skill",
+    "slack",
+    "webhook",
+    "canteen",
+    "menu"
+  ],
   "author": "Elliot Davies",
   "license": "MIT",
   "dependencies": {
@@ -23,11 +29,14 @@
   "devDependencies": {
     "jest": "^22.4.3",
     "jest-fetch-mock": "^1.5.0",
-    "mockdate": "^2.0.2"
+    "mockdate": "^2.0.2",
+    "serverless-plugin-optimize": "^3.1.1-rc.1"
   },
   "jest": {
     "automock": false,
-    "setupFiles": ["./setupTests.js"],
+    "setupFiles": [
+      "./setupTests.js"
+    ],
     "collectCoverageFrom": [
       "alexa/**/*.js",
       "core/**/*.js",
