@@ -1,0 +1,17 @@
+service: canteenbot-scraper
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-1
+  profile: ${file(.env.yml):profile}
+  stage: ${file(.env.yml):stage}
+
+functions:
+  scraper:
+    handler: src/index.handler
+    events:
+      - schedule: cron(0 * * * ? *)
+
+plugins:
+  - serverless-plugin-optimize

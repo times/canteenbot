@@ -1,0 +1,11 @@
+{
+  "name": "canteenbot-scraper",
+  "version": "2.3.0",
+  "description": "CanteenBot scraper",
+  "main": "index.js",
+  "author": "Elliot Davies",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0"
+  }
+}

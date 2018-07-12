@@ -8,7 +8,7 @@ const S3 = new aws.S3({
   region: 'eu-west-1',
 });
 
-const { days } = require('../lib/common');
+const { days } = require('../../lib/common');
 
 // Where to find the menus
 const canteenUrl = 'http://5438cpa251hgt.co.uk';

@@ -13,7 +13,7 @@ jest.mock('aws-sdk', () => ({
 }));
 
 const MockDate = require('mockdate');
-const { handler } = require('../handler');
+const { handler } = require('../src');
 
 describe('scraper', () => {
   it('should write to S3 with the correct data once for each day', async () => {

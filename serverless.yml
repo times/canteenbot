@@ -22,14 +22,14 @@ provider:
 ## Individual parts of the service
 functions:
   ## CanteenBot's core
-  core:
-    handler: core/handler.handler
-    events:
-      - http:
-          path: /core
-          method: get
-    environment:
-      DATA_URL: https://canteenbot-data.s3-eu-west-2.amazonaws.com/
+  # core:
+  #   handler: core/handler.handler
+  #   events:
+  #     - http:
+  #         path: /core
+  #         method: get
+  #   environment:
+  #     DATA_URL: https://canteenbot-data.s3-eu-west-2.amazonaws.com/
 
   ## Slash-command listener
   slack:
@@ -54,10 +54,10 @@ functions:
       - alexaSkill
 
   ## Menu scraper
-  scraper:
-    handler: scraper/handler.handler
-    events:
-      - schedule: cron(0 * * * ? *)
+  # scraper:
+  #   handler: scraper/handler.handler
+  #   events:
+  #     - schedule: cron(0 * * * ? *)
 
 ## Bundling options
 package:
