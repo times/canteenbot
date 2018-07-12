@@ -1,6 +1,2 @@
 node_modules
-data
-.serverless
-.DS_Store
-env.yml
 coverage

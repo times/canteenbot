@@ -1,13 +1,7 @@
 {
   "name": "canteenbot",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Serverless functions to fetch the menu for The News Building’s canteen",
-  "files": [
-    "alexa/handler.js",
-    "core/handler.js",
-    "scraper/handler.js",
-    "slack/handler.js"
-  ],
   "scripts": {
     "test": "DATA_URL=https://www.example.com/ jest --coverage"
   },
