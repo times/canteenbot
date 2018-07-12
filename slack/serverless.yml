@@ -1,0 +1,32 @@
+service: canteenbot-slack
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-1
+  profile: ${file(.env.yml):profile}
+  stage: ${file(.env.yml):stage}
+
+functions:
+  slack:
+    handler: src/index.handler
+    events:
+      - http:
+          method: get
+          path: /slack
+      - http:
+          method: post
+          path: /slack
+      ## Post to Slack on a schedule
+      - schedule:
+          rate: cron(0 11 * * ? *)
+          input:
+            notify: true
+    environment:
+      CORE_URL: ${file(.env.yml):CORE_URL}
+      CLIENT_ID: ${file(.env.yml):CLIENT_ID}
+      CLIENT_SECRET: ${file(.env.yml):CLIENT_SECRET}
+      REDIRECT_URI: ${file(.env.yml):REDIRECT_URI}
+
+plugins:
+  - serverless-plugin-optimize

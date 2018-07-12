@@ -1,0 +1,10 @@
+{
+  "name": "canteenbot-slack",
+  "version": "2.3.0",
+  "description": "CanteenBot Slack app",
+  "main": "src/index.js",
+  "author": "Elliot Davies",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,5 +1,5 @@
-const common = require('../lib/common');
-const { buildCoreQuery } = require('../lib/helpers');
+const common = require('../../lib/common');
+const { buildCoreQuery } = require('../../lib/helpers');
 
 const {
   respond,
