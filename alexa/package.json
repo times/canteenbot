@@ -1,7 +1,7 @@
 {
-  "name": "canteenbot-core",
+  "name": "canteenbot-alexa",
   "version": "2.3.0",
-  "description": "CanteenBot core",
+  "description": "CanteenBot Alexa skill",
   "main": "src/index.js",
   "author": "Elliot Davies",
   "license": "MIT",

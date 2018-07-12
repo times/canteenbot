@@ -1,6 +1,6 @@
 require('isomorphic-fetch');
-const common = require('../lib/common');
-const { buildCoreQuery } = require('../lib/helpers');
+const common = require('../../lib/common');
+const { buildCoreQuery } = require('../../lib/helpers');
 
 const coreUrl = process.env.CORE_URL;
 

@@ -1,0 +1,19 @@
+service: canteenbot-alexa
+
+provider:
+  name: aws
+  runtime: "nodejs8.10"
+  region: eu-west-1
+  profile: ${file(.env.yml):profile}
+  stage: ${file(.env.yml):stage}
+
+functions:
+  alexa:
+    handler: alexa/handler.handler
+    events:
+      - alexaSkill
+    environment:
+      CORE_URL: ${file(.env.yml):CORE_URL}
+
+plugins:
+  - serverless-plugin-optimize
