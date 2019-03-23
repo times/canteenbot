@@ -1,6 +1,6 @@
 CORE_URL: https://123456abcdef.execute-api.eu-west-1.amazonaws.com/prod/core
-CLIENT_ID: "123456.123456"
+CLIENT_ID: '123456.123456'
 CLIENT_SECRET: abcdefghijkl
-REDIRECT_URI: https://ab.cd.efg
-profile: profile_name
-stage: dev
+REDIRECT_URI: https://123456abcdef.execute-api.eu-west-1.amazonaws.com/prod/slack
+CANTEEN_URL: http://5438cpa251hgt.co.uk/
+DATA_BUCKET_NAME: some-s3-bucket-name

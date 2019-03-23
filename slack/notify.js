@@ -1,6 +1,6 @@
 require('isomorphic-fetch');
 
-const { buildMenuAttachments, fetchMenu } = require('./helpers');
+const { buildPayload, fetchMenu } = require('./helpers');
 
 /**
  * Get today's canteen menu and post to the given URLs
@@ -9,7 +9,12 @@ module.exports = webhookUrls => {
   const requestedMenu = 'today';
 
   return fetchMenu(requestedMenu)
-    .then(menu => sendMenus(webhookUrls, requestedMenu, menu))
+    .then(({ mainMenuContent, cafeMenuContent }) =>
+      sendMenus(webhookUrls, requestedMenu, {
+        mainMenuContent,
+        cafeMenuContent,
+      })
+    )
     .catch(err =>
       sendErrors(webhookUrls, `Error querying core server: ${err}`)
     );
@@ -17,11 +22,7 @@ module.exports = webhookUrls => {
 
 // Build and return a 'menu' response to Slack
 const sendMenus = (webhookUrls, requestedMenu, menuData) =>
-  postToSlackUrls(
-    webhookUrls,
-    '',
-    buildMenuAttachments(requestedMenu, menuData)
-  );
+  postToSlackUrls(webhookUrls, buildPayload(requestedMenu, menuData));
 
 // Return an error to Slack
 const sendErrors = (webhookUrls, text) =>
@@ -34,12 +35,7 @@ const sendErrors = (webhookUrls, text) =>
   ]);
 
 // Helper function to return a JSON response to Slack
-const postToSlackUrls = (webhookUrls, text = '', attachments = []) => {
-  const payload = {
-    text,
-    attachments,
-  };
-
+const postToSlackUrls = (webhookUrls, payload) => {
   const send = webhookUrl =>
     fetch(webhookUrl, {
       method: 'POST',

@@ -4,3 +4,4 @@ data
 .DS_Store
 env.yml
 coverage
+env-local.yml

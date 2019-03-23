@@ -2,12 +2,15 @@ require('isomorphic-fetch');
 
 const common = require('../lib/common');
 const { sendResponse } = require('../lib/helpers');
+const env = process.env.ENV || 'dev';
 
 // Where to find the menus
-const menuUrl = process.env.DATA_URL;
+const dataUrl = `https://${
+  process.env.DATA_BUCKET_NAME
+}.s3.amazonaws.com/${env}/`;
 
 // Helpers
-const buildMenuUrl = day => `${menuUrl}${day}.json`;
+const buildMenuUrl = day => `${dataUrl}${day}.json`;
 
 // Send data back
 const sendData = (callback, data) => {
@@ -34,22 +37,6 @@ const menuHandler = (callback, menu) => {
     .then(res => res.json())
     .then(body => sendData(callback, body))
     .catch(err => sendData(callback, `Couldn't read menu file for "${menu}"`));
-};
-
-/*
- * Handle ingredient requests - returns a list of days on which a given ingredient is available
- */
-const ingredientHandler = (callback, ingredient) => {
-  // Fetch the JSON for each of the menus
-  const promises = common.days
-    .map(buildMenuUrl)
-    .map(url => fetch(url).then(res => res.json()));
-
-  // Return only the days containing that ingredient
-  return Promise.all(promises)
-    .then(getDaysWithIngredient(ingredient))
-    .then(days => sendData(callback, days))
-    .catch(err => sendError(callback, err));
 };
 
 // Check each menu to see if it contains the given ingredient
@@ -97,13 +84,11 @@ module.exports.handler = (event, context, callback) => {
   }
 
   // Valid values for message_type
-  const { MENU, INGREDIENT } = common.messageTypes;
+  const { MENU } = common.messageTypes;
 
   switch (args.message_type) {
     case MENU:
       return menuHandler(callback, args.message_param);
-    case INGREDIENT:
-      return ingredientHandler(callback, args.message_param);
     default:
       sendError(callback, `Invalid message_type ${args.message_type}.`);
       break;

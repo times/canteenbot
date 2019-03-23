@@ -7,13 +7,20 @@ const common = require('../lib/common');
 const dynamoDB = new aws.DynamoDB();
 
 const coreUrl = process.env.CORE_URL;
+const canteenUrl = process.env.CANTEEN_URL;
+const env = process.env.ENV || 'dev';
+
+// Capitalise a string
+String.prototype.capitalise = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
 
 /**
  * Get the record for a given team from the DB
  */
 module.exports.getTeamsFromDB = () =>
   new Promise((resolve, reject) => {
-    const dynamoParams = { TableName: 'canteenbot' };
+    const dynamoParams = { TableName: `canteenbot_${env}` };
 
     dynamoDB.scan(dynamoParams, (err, rows) => {
       if (err) {
@@ -46,7 +53,7 @@ module.exports.storeTeamInDB = (teamId, teamName, accessToken, webhookUrl) =>
         accessToken: { S: accessToken },
         webhookUrl: { S: webhookUrl },
       },
-      TableName: 'canteenbot',
+      TableName: `canteenbot_${env}`,
     };
 
     dynamoDB.putItem(dynamoParams, (err, data) => {
@@ -63,31 +70,25 @@ module.exports.storeTeamInDB = (teamId, teamName, accessToken, webhookUrl) =>
 // Helper function to return a JSON response to Slack
 const respond = (module.exports.respond = (
   callback,
-  text = '',
-  attachments = [],
+  payload,
   statusCode = 200
-) => {
-  const payload = {
-    text,
-    attachments,
-  };
-
-  return sendResponse(callback, payload, statusCode);
-});
+) => sendResponse(callback, payload, statusCode));
 
 // Return an error to Slack
 module.exports.respondWithError = (callback, text) =>
   respond(
     callback,
-    '*Something went wrong*',
-    [
-      {
-        fallback: text,
-        text,
-        color: 'danger',
-      },
-    ],
-    500
+    {
+      text: '*Something went wrong*',
+      attachments: [
+        {
+          fallback: text,
+          text,
+          color: 'danger',
+        },
+      ],
+    },
+    200
   );
 
 // Query the core server for a menu
@@ -118,30 +119,61 @@ module.exports.fetchIngredient = ingredient =>
       return body.data;
     });
 
-// Construct Slack `attachments` field for a menu
-module.exports.buildMenuAttachments = (requestedMenu, menuData) => {
-  const menuText = menuData.locations
-    .map(({ location, menu }) => `*${location}*\n${menu}`)
-    .join('\n\n');
+const sentenceCase = line => {
+  const trimmed = line.trim();
+  return `${trimmed[0].toUpperCase()}${trimmed.slice(1).toLowerCase()}`;
+};
 
-  const menuUrl = menuData.url;
-  const day = requestedMenu.charAt(0).toUpperCase() + requestedMenu.slice(1);
+const formatSubsection = (key, content) => `${sentenceCase(key)}: ${content}`;
 
-  const attachments = [
-    {
-      fallback: day + '’s menu',
-      color: 'good',
-      title: day + '’s menu',
-      title_link: menuUrl,
-      fields: [
-        {
-          value: menuText,
-          short: false,
-        },
-      ],
-      mrkdwn_in: ['fields'],
+// Format the menu content as a Slack web hook post payload.
+module.exports.buildPayload = (day, { mainMenuContent, cafeMenuContent }) => {
+  // For cafe, the section titles are days of the week.
+  const todaysCafeMenuContent = cafeMenuContent.find(x => x.title === day);
+
+  const payloadContent = [
+    ...mainMenuContent,
+    todaysCafeMenuContent && {
+      // Don't want the day as the title, so override it.
+      ...todaysCafeMenuContent,
+      title: 'Café',
     },
-  ];
+  ]
+    .filter(Boolean)
+    .map(section => {
+      // For each section, we want to generate the lines of text.
+      // First the main body content (if any), then each subsection text.
+      const lines = [];
+      if (section.body) {
+        lines.push(...section.body);
+      }
+      lines.push(
+        ...Object.keys(section.subsections).reduce((acc, key) => {
+          acc.push(formatSubsection(key, section.subsections[key]));
+          return acc;
+        }, [])
+      );
 
-  return attachments;
+      // Each section output as a Slack attachment object (these will be sent as part of payload).
+      return {
+        title: section.title,
+        color: section.color,
+        text: lines.map(line => sentenceCase(line)).join('\n'),
+        mrkdwn_in: ['text'],
+      };
+    });
+
+  return {
+    username: 'Canteen on 14',
+    icon_emoji: ':fork_and_knife:',
+    text: `Menu for ${day.capitalise()}`,
+    attachments: [
+      ...payloadContent,
+      {
+        text: [
+          `Menu taken from <${canteenUrl}#canteen|Canteen on 14 website>.`,
+        ].join('\n'),
+      },
+    ],
+  };
 };

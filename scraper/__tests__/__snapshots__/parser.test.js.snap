@@ -1,0 +1,669 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parser/index.js cafeMenuParser should parse the html snippet 1`] = `
+Array [
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Virgin Radio Bap Give Away",
+      ],
+      "lunch": Array [
+        "Open club sandwich",
+      ],
+    },
+    "title": "monday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Poached egg Florentine",
+      ],
+      "lunch": Array [
+        "Baked chorizo hens egg, garlic bread and salad",
+      ],
+    },
+    "title": "tuesday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Smoked bacon frittata",
+      ],
+      "lunch": Array [
+        "Roasted aubergine and Parma ham on focaccia",
+      ],
+    },
+    "title": "wednesday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Baked Smoked haddock Arnold Bennett",
+      ],
+      "lunch": Array [
+        "Harissa salmon, roasted chick peas lemon yoghurt on khobez",
+      ],
+    },
+    "title": "thursday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Smashed avocado, chilli and tomato on sourdough",
+      ],
+      "lunch": Array [
+        "Loaded wedges",
+      ],
+    },
+    "title": "friday",
+  },
+]
+`;
+
+exports[`parser/index.js cafeMenuParser should parse the html snippet 2`] = `
+Array [
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Baked hens egg, wilted spinach, potato and feta",
+      ],
+      "lunch": Array [
+        "Samosa chat, Chana masala, mint yoghurt and Bombay mix (V)",
+      ],
+    },
+    "title": "monday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Two cheese omelette, tomato and rocket (v)",
+      ],
+      "lunch": Array [
+        "Caramelised goats cheese, balsamic onions and rocket on toasted focaccia",
+      ],
+    },
+    "title": "tuesday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Waffle Wednesday with crispy bacon and maple syrup",
+      ],
+      "lunch": Array [
+        "Salt beef bagel with gherkin, red onion and whole grain mustard mayo",
+      ],
+    },
+    "title": "wednesday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Smoked haddock and chive frittata",
+      ],
+      "lunch": Array [
+        "Hickory chicken, jalapenos fried onions and spiced wedges",
+      ],
+    },
+    "title": "thursday",
+  },
+  Object {
+    "color": "#3126A2",
+    "subsections": Object {
+      "breakfast": Array [
+        "Toasted sourdough bread with smashed avocado, poached egg and crumbled goats cheese",
+      ],
+      "lunch": Array [
+        "Pulled pork bap with caramelised onion, apple and sage stuffing",
+      ],
+    },
+    "title": "friday",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 1`] = `
+Array [
+  Object {
+    "body": Array [
+      "CRISPY PORK BELLY STRIP WITH CIDER GRAVY",
+      "SALMON & TOFU ZEN BOWL",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "SMASHED SWEDE, BRAISED RED CABBAGE, PICKLED VEG SALAD OR GLAZED PAK CHOY",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "SOFT TACO FILLED WITH COURGETTE CORN OR CHICKEN MOLE WITH RICE VERDE",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "GREEN BEAN WITH SESAME AND CHARD BROCCOLI",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "CARROT & CORIANDER",
+      "CHICKEN, SWEET POTATO & COCONUT",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 2`] = `
+Array [
+  Object {
+    "body": Array [
+      "Shepherd's pie or Veggie pie",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Glazed Carrot/ mange tout/ crusty bread",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Roots and Shoots with chicken, beet falafel (v) or poached salmon",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "warm seasonal salads",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "PHAT BOUY BURGER",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Rainbow slaw/fries",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Cream of mushroom (v)",
+      "Pork noodle soup",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 3`] = `
+Array [
+  Object {
+    "body": Array [
+      "Beef and onion pie/ Squash and feta, mash liquor",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Green panache, green beans and pea",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Roots and Shoots with falafel add on chicken or baked salmon",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "warm seasonal salads",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Slow roast harissa lamb, pitta breads, mint yoghurt, shredded lettuce add vegi grilled hummus",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Rainbow slaw or fries",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Leek and potato (v)",
+      "Spiced minestrone",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 4`] = `
+Array [
+  Object {
+    "body": Array [
+      "Genuine Chip Shop - Punk IPA battered Catch of The Day & battered sausages, savaloys",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Chips, peas & mushy peas",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Steamed day boat fish, new potato",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "Steamed brocolli",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Dirty rice bar, prawn roast chicken and CORIANDER",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Wedges",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Carrot and cumin (v)",
+      "Spiced lemon grass chicken and coconut",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 5`] = `
+Array [
+  Object {
+    "body": Array [
+      "Beef and onion pie/ Squash and feta, mash liquor",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Green panache, green beans and pea",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Roots and Shoots with falafel add on chicken or baked salmon",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "warm seasonal salads",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Slow roast harissa lamb, pitta breads, mint yoghurt, shredded lettuce add vegi grilled hummus",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Rainbow slaw or fries",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Leek and potato (v)",
+      "Spiced minestrone",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 6`] = `
+Array [
+  Object {
+    "body": Array [
+      "Garlic and smoked paprika chicken thigh/ Fried cauliflower and aioli",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Chickpea and roast garlic salad",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "VEGAN BAR Californian tofu wrap (v)",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "Chilli, roast red onion and preserved lemon salad",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Seafood Thai green curry, Vegetable red curry Jasmine rice",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Spring roll, Asian slaw, sweet chilli, prawn crackers",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Baked apple and celeriac",
+      "Lentil and smoked bacon",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 7`] = `
+Array [
+  Object {
+    "body": Array [
+      "Garlic and smoked paprika chicken thigh/ Fried cauliflower and aioli",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Chickpea and roast garlic salad",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "VEGAN BAR Californian tofu wrap (v)",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "Chilli, roast red onion and preserved lemon salad",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Seafood Thai green curry, Vegetable red curry Jasmine rice",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Spring roll, Asian slaw, sweet chilli, prawn crackers",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Baked apple and celeriac",
+      "Lentil and smoked bacon",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 8`] = `
+Array [
+  Object {
+    "body": Array [
+      "Genuine Chip Shop",
+      "Punk IPA battered catch of the day, battered sausages and saveloys",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Chips, peas & mushy peas",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Steamed day boat fish with new potato",
+    ],
+    "color": "#007404",
+    "subsections": Object {
+      "sides": Array [
+        "Steamed broccoli",
+      ],
+    },
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Burns Night",
+      "roast haggis, crispy neeps and tatties with whisky sauce",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Wedges",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Carrot and cumin",
+      "Spiced lemon grass chicken and coconut",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 9`] = `
+Array [
+  Object {
+    "body": Array [
+      "Genuine Chip Shop - battered Pollock & battered sausages, savaloys",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Chips, peas & mushy peas",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Pulled jack fruit",
+      "Freshly baked salmon",
+      "served with red onion freekeh, toasted hazelnut and lemon dressing",
+    ],
+    "color": "#007404",
+    "subsections": Object {},
+    "title": "Healthy Bar",
+  },
+  Object {
+    "body": Array [
+      "Chilli glazed chicken, wild rice and red pepper",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "Glazed sugar snaps and broccoli",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Roasted parsnip (v)",
+      "Curried cauliflower and bacon",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 10`] = `
+Array [
+  Object {
+    "body": Array [
+      "CHICKEN KATSU CURRY WITH STICKY RICE, SPRING ONION AND CHILLI",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "VEGETABLE SPRING ROLL OR EDAMAME BEANS, CHILLI OIL PONZU (V)",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "MEXICAN SPICED BAKED FISH WITH TOMATO AND LIME SAUCE",
+      "CHILLI BEEF WITH ARROZ VERDE",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "NACHOS, SPICED POTATO WEDGE, SOUR CREAM AND CHIVES (V)",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "BUILD YOUR OWN BURGER - BRIOCHE BUN, TOMATO, LETTUCE, GHERKIN AND CHILLI WITH A CHOICE OF",
+      "BEEF PATTY",
+      "VEGGIE PATTY (V)",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {
+      "sides": Array [
+        "CHUNKY STEAK CHIPS",
+      ],
+    },
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "CARROT AND ORANGE (V)",
+      "CHILLI COCONUT CHICKEN",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;
+
+exports[`parser/index.js mainMenuParser should parse the html snippet 11`] = `
+Array [
+  Object {
+    "body": Array [
+      "Baked Swedish beef meatballs with celeriac mash",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Warm beetroot and apple salad or crusty farm house loaf (V)",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Cumberland sausage ring, lyonnaise potato and roasted plum tomato sauce",
+    ],
+    "color": "#C41017",
+    "subsections": Object {
+      "sides": Array [
+        "Buttered cabbage and roasted Kentish root vegetables (v)",
+      ],
+    },
+    "title": "From the Oven",
+  },
+  Object {
+    "body": Array [
+      "Slow roast cauliflower, tomato, preserved lemon pesto, with chicken thigh or crispy smoked paprika coated halloumi (V)",
+    ],
+    "color": "#00BFFF",
+    "subsections": Object {},
+    "title": "Chefs Theatre",
+  },
+  Object {
+    "body": Array [
+      "Roast mushroom and thyme (V)",
+      "Chicken and bacon soup",
+    ],
+    "color": "#e6e600",
+    "subsections": Object {},
+    "title": "Soup",
+  },
+]
+`;

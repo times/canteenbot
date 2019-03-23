@@ -6,7 +6,7 @@ const {
   respondWithError,
   fetchMenu,
   fetchIngredient,
-  buildMenuAttachments,
+  buildPayload,
 } = require('./helpers');
 
 /**
@@ -16,14 +16,14 @@ module.exports = (callback, event) => {
   // Parse arguments
   const { token, command, text } = parseCommand(event.body);
 
-  if (command !== '/canteen')
+  if (!['/canteen', '/canteen-dev'].includes(command))
     return respondWithError(
       callback,
       `Sorry, the service ${command} isn't supported.`
     );
 
   // Valid parameters that can be passed via Slack
-  const recognisedParams = ['', ...common.menuTypes, 'ingredient', 'help'];
+  const recognisedParams = ['', ...common.menuTypes, 'help'];
 
   // Now look at the first parameter the user supplied
   const params = text.split('+').map(a => a.toLowerCase());
@@ -40,33 +40,25 @@ module.exports = (callback, event) => {
     case 'help':
       return respondWithHelp(callback, recognisedParams);
 
-    // For ingredient requests, return a list of days where that ingredient is on the menu
-    case 'ingredient':
-      const ingredient = params[1];
-
-      // Check the user passed an ingredient to check
-      if (!ingredient)
-        return respondWithError(
-          callback,
-          'You need to give me an ingredient to check!'
-        );
-
-      return fetchIngredient(ingredient)
-        .then(days => respondWithIngredient(callback, ingredient, days))
-        .catch(err =>
-          respondWithError(callback, `Error querying core server: ${err}`)
-        );
-
     // Otherwise it must be a menu request
     default:
       // Default to today's menu
       const requestedMenu = firstParam || 'today';
 
       return fetchMenu(requestedMenu)
-        .then(menu => respondWithMenu(callback, requestedMenu, menu))
-        .catch(err =>
-          respondWithError(callback, `Error querying core server: ${err}`)
-        );
+        .then(({ mainMenuContent, cafeMenuContent }) =>
+          respondWithMenu(callback, requestedMenu, {
+            mainMenuContent,
+            cafeMenuContent,
+          })
+        )
+        .catch(err => {
+          console.log({ err });
+          return respondWithError(
+            callback,
+            `Error querying core server: ${err}`
+          );
+        });
   }
 };
 
@@ -88,26 +80,6 @@ const respondWithHelp = (callback, recognisedParams) => {
   return respond(callback, helpText + paramsText);
 };
 
-// Build and return an 'ingredient' response to Slack
-const respondWithIngredient = (callback, ingredient, daysWithIngredient) => {
-  let responseText;
-
-  // If we didn't find the ingredient
-  if (daysWithIngredient.length === 0) {
-    responseText = `Sorry, I couldn’t find "${ingredient}" in the menu this week`;
-  } else {
-    const daysText = daysWithIngredient.reduce((str, d, i, arr) => {
-      if (i === 0) return d;
-      if (i === arr.length - 1) return `${str} and ${d}`;
-      return `${str}, ${d}`;
-    }, '');
-
-    responseText = `Looks like the canteen are serving ${ingredient} on ${daysText} this week`;
-  }
-
-  return respond(callback, responseText);
-};
-
 // Build and return a 'menu' response to Slack;
 const respondWithMenu = (callback, requestedMenu, menuData) =>
-  respond(callback, '', buildMenuAttachments(requestedMenu, menuData));
+  respond(callback, buildPayload(requestedMenu, menuData));

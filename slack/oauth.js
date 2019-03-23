@@ -19,7 +19,6 @@ module.exports = (callback, event) => {
     const errMsg = `Error retrieving code from ${
       event.queryStringParameters
     }: ${e}`;
-    console.log(errMsg);
     return sendErrorResponse(callback, errMsg);
   }
 
