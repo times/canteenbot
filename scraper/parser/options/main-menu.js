@@ -26,6 +26,11 @@ module.exports = {
       displayName: 'Healthy Bar',
       color: '#007404',
     },
+    {
+      matcher: /^\s*HEALTHY\s+STATION\s*$/i,
+      displayName: 'Healthy Station',
+      color: '#007404',
+    },
   ],
 
   // Any lines that match these will be excluded from the contents.
