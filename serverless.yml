@@ -51,7 +51,7 @@ functions:
           path: /slack
       ## Post to Slack on a schedule
       - schedule:
-          rate: cron(0 11 * * ? *)
+          rate: cron(0 10 * * ? *)
           input:
             notify: true
 
