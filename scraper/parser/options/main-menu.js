@@ -27,6 +27,11 @@ module.exports = {
       color: '#380c87',
     },
     {
+      matcher: /^\s*TERRACE CAFE DINNER\s*$/i,
+      displayName: 'Terrace Cafe (Dinner)',
+      color: '#380c87',
+    },
+    {
       matcher: /^\s*HEALTHY\s+BAR\s*$/i,
       displayName: 'Healthy Bar',
       color: '#007404',
